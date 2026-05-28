@@ -53,4 +53,4 @@ Prioridade: 1 = Baixa, 2 = Média, 3 = Alta
 
 - **REQ 11 (resultados públicos):** o backend fornece os dados via API; a visualização/gráficos ficam no frontend React. Não há geração de gráficos no backend.
 - **REQ 12 (PDF):** baixa prioridade, implementar por último.
-- **Autenticação:** REQ 2 e 3 compartilham a mesma entidade `Administrador` com roles diferentes por enquanto.
+- **Autenticação:** REQ 2 e 3 compartilham a mesma entidade `Usuario` com roles diferentes (`servidor` e `pesquisador_campo`).
