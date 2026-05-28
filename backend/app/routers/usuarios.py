@@ -3,14 +3,27 @@ from sqlalchemy.orm import Session
 import bcrypt
 
 from app.database import get_db
+from app.dependencies import get_current_user
 from app.models.usuario import Usuario
 from app.schemas.usuario import UsuarioCreate, UsuarioOut
 
 router = APIRouter(prefix="/usuarios", tags=["usuarios"])
 
 
-@router.post("", response_model=UsuarioOut, status_code=status.HTTP_201_CREATED)
-def criar_usuario(dados: UsuarioCreate, db: Session = Depends(get_db)):
+@router.post(
+    "",
+    response_model=UsuarioOut,
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        401: {"description": "Não autenticado."},
+        409: {"description": "E-mail já cadastrado."},
+    },
+)
+def criar_usuario(
+    dados: UsuarioCreate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(get_current_user),
+):
     if db.query(Usuario).filter(Usuario.email == dados.email).first():
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
