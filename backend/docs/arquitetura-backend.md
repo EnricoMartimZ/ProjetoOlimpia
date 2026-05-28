@@ -4,7 +4,7 @@
 
 ```
 backend/
-├── alembic/                  # Migrations do banco
+├── alembic/                  # Migrations do banco (a configurar)
 │   └── versions/
 ├── app/
 │   ├── main.py               # Entrada da aplicação, registra os routers
@@ -12,7 +12,7 @@ backend/
 │   ├── dependencies.py       # Dependências compartilhadas (get_db, get_current_user)
 │   │
 │   ├── models/               # Tabelas do banco (SQLAlchemy)
-│   │   ├── administrador.py
+│   │   ├── usuario.py
 │   │   ├── pesquisa.py
 │   │   ├── edicao.py
 │   │   ├── campo.py
@@ -21,7 +21,7 @@ backend/
 │   │   └── diaria_media.py
 │   │
 │   ├── schemas/              # Validação de entrada/saída (Pydantic)
-│   │   ├── administrador.py
+│   │   ├── usuario.py
 │   │   ├── pesquisa.py
 │   │   ├── edicao.py
 │   │   ├── campo.py
@@ -31,6 +31,7 @@ backend/
 │   │
 │   ├── routers/              # Endpoints da API
 │   │   ├── auth.py           # POST /auth/login
+│   │   ├── usuarios.py       # POST /usuarios
 │   │   ├── pesquisas.py
 │   │   ├── edicoes.py
 │   │   ├── campos.py
@@ -65,7 +66,6 @@ backend/
 | `routers/` | Define as rotas HTTP, chama services ou acessa o banco via dependências |
 | `services/` | Lógica de negócio — mineração REGEX, geração de relatórios |
 
-
 ---
 
 ## Endpoints previstos
@@ -73,6 +73,11 @@ backend/
 ### Autenticação
 ```
 POST   /auth/login
+```
+
+### Usuários (admin)
+```
+POST   /usuarios
 ```
 
 ### Pesquisas (admin)
