@@ -1,4 +1,35 @@
+# ── Ambiente ──────────────────────────────────────────────────────────────────
 .env
-.claude
-backend/venv
+.env.local
+.env.*.local
 
+# ── Python ────────────────────────────────────────────────────────────────────
+backend/venv/
+**/__pycache__/
+**/*.py[cod]
+**/*.pyo
+**/*.pyd
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ── Node / React ──────────────────────────────────────────────────────────────
+front/node_modules/
+front/dist/
+front/build/
+front/.env
+front/.env.local
+front/.env.*.local
+
+# ── Sistema operacional ───────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Editores ──────────────────────────────────────────────────────────────────
+.idea/
+*.swp
+*.swo
+
+# ── Claude Code ───────────────────────────────────────────────────────────────
+.claude/
