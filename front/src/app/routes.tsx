@@ -1,5 +1,6 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import { LoginPage } from "./pages/LoginPage";
+import { CadastroPage } from "./pages/CadastroPage";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { DashboardPage } from "./pages/admin/DashboardPage";
 import { DiariaMediaPage } from "./pages/admin/DiariaMediaPage";
@@ -12,6 +13,14 @@ import { NovaPesquisaPage } from "./pages/researcher/NovaPesquisaPage";
 import { PublicSurveyPage } from "./pages/PublicSurveyPage";
 import { PublicStatsPage } from "./pages/PublicStatsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { useAuth } from "./context/AuthContext";
+
+function RequireRole({ role }: { role: string }) {
+  const { user } = useAuth();
+  if (!user) return <Navigate to="/" replace />;
+  if (user.role !== role) return <Navigate to="/" replace />;
+  return <Outlet />;
+}
 
 export const router = createBrowserRouter([
   {
@@ -19,22 +28,36 @@ export const router = createBrowserRouter([
     Component: LoginPage,
   },
   {
+    path: "/cadastro",
+    Component: CadastroPage,
+  },
+  {
     path: "/admin",
-    Component: AdminLayout,
+    element: <RequireRole role="servidor" />,
     children: [
-      { index: true, Component: DashboardPage },
-      { path: "diaria-media", Component: DiariaMediaPage },
-      { path: "consultar", Component: ConsultarPage },
-      { path: "adicionar-pesquisa", Component: AdicionarPesquisaPage },
+      {
+        Component: AdminLayout,
+        children: [
+          { index: true, Component: DashboardPage },
+          { path: "diaria-media", Component: DiariaMediaPage },
+          { path: "consultar", Component: ConsultarPage },
+          { path: "adicionar-pesquisa", Component: AdicionarPesquisaPage },
+        ],
+      },
     ],
   },
   {
     path: "/pesquisador",
-    Component: ResearcherLayout,
+    element: <RequireRole role="pesquisador_campo" />,
     children: [
-      { index: true, Component: ResearcherDashboard },
-      { path: "responder", Component: ResponderPage },
-      { path: "nova-pesquisa", Component: NovaPesquisaPage },
+      {
+        Component: ResearcherLayout,
+        children: [
+          { index: true, Component: ResearcherDashboard },
+          { path: "responder", Component: ResponderPage },
+          { path: "nova-pesquisa", Component: NovaPesquisaPage },
+        ],
+      },
     ],
   },
   {

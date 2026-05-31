@@ -1,25 +1,44 @@
 import { useState } from "react";
 import { useNavigate } from "react-router";
-import { User, Lock, Eye, EyeOff, ClipboardList, BarChart2 } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, ClipboardList, BarChart2 } from "lucide-react";
 import { OlimpiaLogo } from "../components/OlimpiaLogo";
 import { ColorStripe } from "../components/ColorStripe";
 import { useAppStore } from "../context/AppStore";
+import { useAuth } from "../context/AuthContext";
 import { toSlug } from "../../lib/constants";
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { researches } = useAppStore();
+  const { login, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<"adm" | "pesquisador">("adm");
-  const [usuario, setUsuario] = useState("");
+  const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeTab === "adm") {
-      navigate("/admin");
-    } else {
-      navigate("/pesquisador");
+    setErro(null);
+    setLoading(true);
+    try {
+      const authUser = await login(email, senha);
+      const roleEsperado = activeTab === "adm" ? "servidor" : "pesquisador_campo";
+      if (authUser.role !== roleEsperado) {
+        logout();
+        setErro(
+          activeTab === "adm"
+            ? "Esta conta não tem perfil de administrador."
+            : "Esta conta não tem perfil de pesquisador de campo."
+        );
+        return;
+      }
+      navigate(authUser.role === "servidor" ? "/admin" : "/pesquisador");
+    } catch (err) {
+      setErro(err instanceof Error ? err.message : "Erro ao fazer login.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,32 +103,26 @@ export function LoginPage() {
 
             {/* Form */}
             <form onSubmit={handleLogin} className="px-8 pb-8 flex flex-col gap-4">
-              {/* Usuário field */}
+              {/* E-mail field */}
               <div>
                 <div className="flex justify-between items-center mb-1">
                   <label
                     style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1B1D40" }}
                   >
-                    usuário
+                    e-mail
                   </label>
-                  <button
-                    type="button"
-                    className="text-xs underline"
-                    style={{ color: "#1B1D40", opacity: 0.7 }}
-                  >
-                    cadastrar-se
-                  </button>
                 </div>
                 <div className="relative">
-                  <User
+                  <Mail
                     size={15}
                     className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
                   />
                   <input
-                    type="text"
-                    value={usuario}
-                    onChange={(e) => setUsuario(e.target.value)}
-                    placeholder="Digite seu usuário"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="Digite seu e-mail"
+                    required
                     className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
                     style={{
                       backgroundColor: "white",
@@ -167,13 +180,33 @@ export function LoginPage() {
                 </div>
               </div>
 
+              {/* Erro */}
+              {erro && (
+                <p
+                  className="text-sm text-center rounded-lg px-3 py-2"
+                  style={{ backgroundColor: "rgba(200,16,46,0.12)", color: "#C8102E", fontFamily: "Inter, sans-serif" }}
+                >
+                  {erro}
+                </p>
+              )}
+
               {/* Entrar button */}
               <button
                 type="submit"
-                className="w-full py-3 rounded-xl text-white font-bold text-base mt-2 transition-opacity hover:opacity-90 active:opacity-80"
+                disabled={loading}
+                className="w-full py-3 rounded-xl text-white font-bold text-base mt-2 transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-60"
                 style={{ backgroundColor: "#1B1D40", fontFamily: "Inter, sans-serif" }}
               >
-                Entrar
+                {loading ? "Entrando..." : "Entrar"}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => navigate("/cadastro")}
+                className="text-sm text-center underline"
+                style={{ color: "#1B1D40", opacity: 0.7 }}
+              >
+                Não tem conta? Cadastrar-se
               </button>
 
               {/* Public access links */}

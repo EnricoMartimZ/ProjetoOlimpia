@@ -1,11 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
-  Plus, Trash2, Edit3, CheckCircle, Link2, List, Copy,
+  Plus, Trash2, Edit3, CheckCircle, Link2, List, Copy, AlertCircle, Loader2,
 } from "lucide-react";
-import { useAppStore } from "../../context/AppStore";
-import { FIELD_TYPES, toSlug } from "../../../lib/constants";
+import { FIELD_TYPES } from "../../../lib/constants";
 import { FieldTypePicker } from "../../components/FieldTypePicker";
-import type { Field, FieldType, Research, Edition } from "../../../types";
+import {
+  getPesquisas,
+  getPesquisa,
+  getEdicoes,
+  createPesquisa,
+  updatePesquisa,
+  deletePesquisa,
+  launchEdicao,
+  type PesquisaListItem,
+  type PesquisaDetalhada,
+  type EdicaoAPI,
+} from "../../../services/api";
+import type { Field, FieldType, Research } from "../../../types";
+
+// ---------------------------------------------------------------------------
+// Helpers de conversão entre tipos da API e tipos internos do frontend
+// ---------------------------------------------------------------------------
+
+function apiToResearch(p: PesquisaDetalhada | PesquisaListItem): Research {
+  const campos = "campos" in p
+    ? p.campos.map((c) => ({
+        id: c.id,
+        tipo: c.tipo,
+        label: c.texto_pergunta,
+        required: c.obrigatorio,
+        opcoes: c.opcoes.length > 0 ? c.opcoes : undefined,
+      }))
+    : [];
+
+  return {
+    id: p.id,
+    nome: p.nome,
+    descricao: p.descricao ?? "",
+    status: p.status,
+    edicoes: p.total_edicoes,
+    campos,
+    // Link público aponta para a edição atual (rota /pesquisa/{edicaoId}). undefined se rascunho.
+    publicLink: p.edicao_atual_id != null ? `/pesquisa/${p.edicao_atual_id}` : undefined,
+  };
+}
+
+function camposToApiInput(campos: Field[], offset: number = 0) {
+  return campos.map((f, i) => ({
+    texto_pergunta: f.label,
+    tipo: f.tipo,
+    opcoes: f.opcoes ?? [],
+    obrigatorio: f.required,
+    ordem: offset + i,
+  }));
+}
+
+// ---------------------------------------------------------------------------
+// Utils
+// ---------------------------------------------------------------------------
 
 const statusColor = (s: string) => {
   if (s === "ativa") return { bg: "#E8F5E9", text: "#2E7D32" };
@@ -13,10 +65,16 @@ const statusColor = (s: string) => {
   return { bg: "#FFF3CD", text: "#B8860B" };
 };
 
-const ordinal = (n: number) => `${n}ª`;
+// ---------------------------------------------------------------------------
+// Componente
+// ---------------------------------------------------------------------------
 
 export function AdicionarPesquisaPage() {
-  const { researches, addResearch, updateResearch, deleteResearch, editions, addEdition } = useAppStore();
+  const [researches, setResearches] = useState<Research[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   const [selected, setSelected] = useState<Research | null>(null);
   const [mode, setMode] = useState<"view" | "edit" | "new">("view");
@@ -30,8 +88,86 @@ export function AdicionarPesquisaPage() {
   const [launchEndDate, setLaunchEndDate] = useState("");
   const [launchedLink, setLaunchedLink] = useState("");
   const [launchDone, setLaunchDone] = useState(false);
+  const [launching, setLaunching] = useState(false);
+  const [launchError, setLaunchError] = useState<string | null>(null);
 
   const [deleteConfirm, setDeleteConfirm] = useState<number | null>(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Feedback "copiado!" por pesquisa na coluna esquerda
+  const [copiedId, setCopiedId] = useState<number | null>(null);
+
+  // Edições da pesquisa selecionada (para listar os links de cada edição no detalhe)
+  const [edicoesSelected, setEdicoesSelected] = useState<EdicaoAPI[]>([]);
+  const [loadingEdicoes, setLoadingEdicoes] = useState(false);
+  // Feedback "copiado!" por edição
+  const [copiedEdicaoId, setCopiedEdicaoId] = useState<number | null>(null);
+
+  // -------------------------------------------------------------------------
+  // Carregamento inicial
+  // -------------------------------------------------------------------------
+
+  const fetchPesquisas = useCallback(async () => {
+    setLoading(true);
+    setApiError(null);
+    try {
+      const data = await getPesquisas();
+      setResearches(data.map((p) => apiToResearch(p)));
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : "Erro ao carregar pesquisas.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchPesquisas();
+  }, [fetchPesquisas]);
+
+  // -------------------------------------------------------------------------
+  // Seleção — carrega o detalhe completo (com campos) ao clicar numa pesquisa
+  // A listagem (GET /pesquisas) não traz os campos; o detalhe (GET /pesquisas/{id}) traz.
+  // -------------------------------------------------------------------------
+
+  // Carrega (ou recarrega) as edições de uma pesquisa
+  const fetchEdicoes = useCallback(async (pesquisaId: number) => {
+    setLoadingEdicoes(true);
+    try {
+      setEdicoesSelected(await getEdicoes(pesquisaId));
+    } catch {
+      setEdicoesSelected([]);
+    } finally {
+      setLoadingEdicoes(false);
+    }
+  }, []);
+
+  const selectResearch = async (r: Research) => {
+    setSelected(r);          // feedback imediato com os dados que já temos
+    setMode("view");
+    setEdicoesSelected([]);
+    fetchEdicoes(r.id);
+    try {
+      const detalhe = await getPesquisa(r.id);
+      const completo = apiToResearch(detalhe);
+      setSelected(completo);
+      // Atualiza a lista para guardar os campos já carregados
+      setResearches((prev) => prev.map((x) => (x.id === completo.id ? completo : x)));
+    } catch (e) {
+      setApiError(e instanceof Error ? e.message : "Erro ao carregar a pesquisa.");
+    }
+  };
+
+  // Copia o link de uma edição específica (lista no painel de detalhe)
+  const copyEdicaoLink = (edicaoId: number) => {
+    const url = `${window.location.origin}/pesquisa/${edicaoId}`;
+    navigator.clipboard.writeText(url).catch(() => {});
+    setCopiedEdicaoId(edicaoId);
+    setTimeout(() => setCopiedEdicaoId((id) => (id === edicaoId ? null : id)), 1500);
+  };
+
+  // -------------------------------------------------------------------------
+  // Ações de formulário
+  // -------------------------------------------------------------------------
 
   const startNew = () => {
     setNome("");
@@ -40,6 +176,7 @@ export function AdicionarPesquisaPage() {
     setSelected(null);
     setMode("new");
     setSaved(false);
+    setSaveError(null);
   };
 
   const startEdit = (r: Research) => {
@@ -49,6 +186,7 @@ export function AdicionarPesquisaPage() {
     setCampos([...r.campos]);
     setMode("edit");
     setSaved(false);
+    setSaveError(null);
   };
 
   const addField = (tipo: FieldType) => {
@@ -90,69 +228,87 @@ export function AdicionarPesquisaPage() {
     );
   };
 
-  const handleSave = () => {
+  // -------------------------------------------------------------------------
+  // Salvar (criar ou atualizar) pesquisa via API
+  // -------------------------------------------------------------------------
+
+  const handleSave = async () => {
     if (!nome.trim()) return;
-    if (mode === "new") {
-      const newR: Research = {
-        id: Date.now(),
-        nome,
-        descricao,
-        campos,
-        status: "rascunho",
-        edicoes: 0,
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const payload = {
+        nome: nome.trim(),
+        descricao: descricao.trim(),
+        campos: camposToApiInput(campos),
       };
-      addResearch(newR);
-      setSelected(newR);
-    } else if (selected) {
-      const updated = { ...selected, nome, descricao, campos };
-      updateResearch(updated);
-      setSelected(updated);
+
+      if (mode === "new") {
+        const created = await createPesquisa(payload);
+        const r = apiToResearch(created);
+        setResearches((prev) => [...prev, r]);
+        setSelected(r);
+      } else if (selected) {
+        const updated = await updatePesquisa(selected.id, payload);
+        const r = apiToResearch(updated);
+        setResearches((prev) => prev.map((x) => (x.id === r.id ? r : x)));
+        setSelected(r);
+      }
+
+      setSaved(true);
+      setMode("view");
+    } catch (e) {
+      setSaveError(e instanceof Error ? e.message : "Erro ao salvar pesquisa.");
+    } finally {
+      setSaving(false);
     }
-    setSaved(true);
-    setMode("view");
   };
+
+  // -------------------------------------------------------------------------
+  // Lançar edição via API → gera o link público real /pesquisa/{edicaoId}
+  // -------------------------------------------------------------------------
 
   const openLaunch = () => {
     setLaunchStartDate("");
     setLaunchEndDate("");
     setLaunchedLink("");
     setLaunchDone(false);
+    setLaunchError(null);
     setLaunchModal(true);
   };
 
-  const handleConfirmLaunch = () => {
+  const handleConfirmLaunch = async () => {
     if (!launchStartDate) return;
     const research = selected ?? researches.find((r) => r.nome === nome);
     if (!research) return;
 
-    const editionsForThis = editions.filter((e) => e.pesquisaId === research.id);
-    const editionNumber = research.edicoes + 1;
-    const year = new Date().getFullYear();
+    setLaunching(true);
+    setLaunchError(null);
+    try {
+      const edicao = await launchEdicao(research.id, {
+        data_abertura: launchStartDate,
+        data_fechamento: launchEndDate || null,
+      });
 
-    const formatDate = (iso: string): string => {
-      if (!iso) return "—";
-      const [y, m, d] = iso.split("-");
-      return `${d}/${m}/${y}`;
-    };
+      const link = `${window.location.origin}/pesquisa/${edicao.id}`;
+      setLaunchedLink(link);
+      setLaunchDone(true);
 
-    const newEdition: Edition = {
-      id: Date.now(),
-      pesquisaId: research.id,
-      nome: `${ordinal(editionNumber)} Edição ${year}`,
-      inicio: formatDate(launchStartDate),
-      fim: launchEndDate ? formatDate(launchEndDate) : "—",
-      respostas: 0,
-      status: "ativa",
-    };
-
-    addEdition(newEdition);
-
-    const link = `${window.location.origin}/pesquisa/${toSlug(research.nome)}`;
-    setLaunchedLink(link);
-    setLaunchDone(true);
-
-    if (selected) {
-      setSelected({ ...selected, edicoes: selected.edicoes + 1, status: "ativa" });
+      // Atualiza a pesquisa local com o novo link e contagem de edições
+      const patch = (r: Research): Research => ({
+        ...r,
+        edicoes: edicao.numero_edicao,
+        status: edicao.status === "encerrada" ? "encerrada" : "ativa",
+        publicLink: `/pesquisa/${edicao.id}`,
+      });
+      setResearches((prev) => prev.map((x) => (x.id === research.id ? patch(x) : x)));
+      if (selected?.id === research.id) setSelected((s) => (s ? patch(s) : s));
+      // Recarrega a lista de edições para o painel de detalhe mostrar a nova
+      fetchEdicoes(research.id);
+    } catch (e) {
+      setLaunchError(e instanceof Error ? e.message : "Erro ao lançar edição.");
+    } finally {
+      setLaunching(false);
     }
   };
 
@@ -160,9 +316,42 @@ export function AdicionarPesquisaPage() {
     navigator.clipboard.writeText(launchedLink).catch(() => {});
   };
 
+  // Copia o link público de uma pesquisa direto da coluna esquerda
+  const copyPublicLink = (r: Research, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!r.publicLink) return;
+    const url = `${window.location.origin}${r.publicLink}`;
+    navigator.clipboard.writeText(url).catch(() => {});
+    setCopiedId(r.id);
+    setTimeout(() => setCopiedId((id) => (id === r.id ? null : id)), 1500);
+  };
+
+  // -------------------------------------------------------------------------
+  // Excluir pesquisa via API
+  // -------------------------------------------------------------------------
+
+  const handleDelete = async (id: number) => {
+    setDeleting(true);
+    try {
+      await deletePesquisa(id);
+      setResearches((prev) => prev.filter((x) => x.id !== id));
+      setSelected(null);
+      setMode("view");
+      setDeleteConfirm(null);
+    } catch (e) {
+      alert(e instanceof Error ? e.message : "Erro ao excluir pesquisa.");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  // -------------------------------------------------------------------------
+  // Render
+  // -------------------------------------------------------------------------
+
   return (
     <div className="p-6 flex gap-6 h-full" style={{ fontFamily: "Inter, sans-serif" }}>
-      {/* Left panel */}
+      {/* Painel esquerdo — lista de pesquisas */}
       <div className="w-72 shrink-0 flex flex-col gap-3" style={{ maxHeight: "calc(100vh - 100px)" }}>
         <div className="flex items-center justify-between">
           <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>Pesquisas</h2>
@@ -176,17 +365,47 @@ export function AdicionarPesquisaPage() {
           </button>
         </div>
 
+        {/* Estados de carregamento / erro */}
+        {loading && (
+          <div className="flex items-center gap-2 justify-center py-6" style={{ color: "#9CA3AF" }}>
+            <Loader2 size={16} className="animate-spin" />
+            <span style={{ fontSize: 13 }}>Carregando...</span>
+          </div>
+        )}
+        {apiError && (
+          <div
+            className="flex items-start gap-2 rounded-lg p-3"
+            style={{ backgroundColor: "#FFEBEE", border: "1px solid #FFCDD2" }}
+          >
+            <AlertCircle size={14} color="#C62828" className="shrink-0 mt-0.5" />
+            <div>
+              <p style={{ fontSize: 12, fontWeight: 600, color: "#C62828" }}>Erro ao carregar</p>
+              <p style={{ fontSize: 11, color: "#C62828" }}>{apiError}</p>
+              <button
+                onClick={fetchPesquisas}
+                style={{ fontSize: 11, color: "#1976D2", marginTop: 4 }}
+              >
+                Tentar novamente
+              </button>
+            </div>
+          </div>
+        )}
+
         <div className="overflow-y-auto space-y-2 pr-1">
           {researches.map((r) => {
             const sc = statusColor(r.status);
+            const isSelected = selected?.id === r.id;
+            const copied = copiedId === r.id;
             return (
-              <button
+              <div
                 key={r.id}
-                onClick={() => { setSelected(r); setMode("view"); }}
-                className="w-full text-left rounded-xl p-3 transition-all"
+                onClick={() => selectResearch(r)}
+                role="button"
+                tabIndex={0}
+                className="w-full text-left rounded-xl p-3 transition-all cursor-pointer"
                 style={{
-                  backgroundColor: selected?.id === r.id ? "#F5C100" : "white",
-                  border: `1px solid ${selected?.id === r.id ? "#F5C100" : "#F0EDE8"}`,
+                  backgroundColor: isSelected ? "#F5C100" : "white",
+                  border: `1px solid ${isSelected ? "#F5C100" : "#F0EDE8"}`,
                 }}
               >
                 <div className="flex items-start justify-between mb-1">
@@ -203,13 +422,37 @@ export function AdicionarPesquisaPage() {
                 <p style={{ fontSize: 11, color: "#6B7280" }}>
                   {r.campos.length} campos · {r.edicoes} edições
                 </p>
-              </button>
+
+                {/* Botão copiar link público — só quando há edição lançada */}
+                {r.publicLink ? (
+                  <button
+                    onClick={(e) => copyPublicLink(r, e)}
+                    className="mt-2 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all"
+                    style={{
+                      backgroundColor: copied ? "#E8F5E9" : isSelected ? "#1B1D40" : "#F0F7FF",
+                      color: copied ? "#2E7D32" : isSelected ? "white" : "#00538C",
+                    }}
+                    title="Copiar link público da pesquisa"
+                  >
+                    {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
+                    {copied ? "Link copiado!" : "Copiar link público"}
+                  </button>
+                ) : (
+                  <p
+                    className="mt-2 flex items-center gap-1 text-xs"
+                    style={{ color: isSelected ? "#7A6A14" : "#9CA3AF" }}
+                  >
+                    <Link2 size={11} />
+                    Sem edição — lance uma para gerar o link
+                  </p>
+                )}
+              </div>
             );
           })}
         </div>
       </div>
 
-      {/* Right panel */}
+      {/* Painel direito — detalhe / formulário */}
       <div className="flex-1 overflow-y-auto">
         {mode === "view" && !selected && (
           <div className="flex flex-col items-center justify-center h-64 gap-3">
@@ -277,6 +520,73 @@ export function AdicionarPesquisaPage() {
                   <p style={{ fontSize: 11, color: "#6B7280" }}>Edições</p>
                 </div>
               </div>
+            </div>
+
+            {/* Edições lançadas — cada uma com seu link público */}
+            <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
+              <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 16 }}>
+                Edições e links públicos
+              </h3>
+
+              {loadingEdicoes ? (
+                <div className="flex items-center gap-2 py-3" style={{ color: "#9CA3AF" }}>
+                  <Loader2 size={14} className="animate-spin" />
+                  <span style={{ fontSize: 12 }}>Carregando edições...</span>
+                </div>
+              ) : edicoesSelected.length === 0 ? (
+                <p style={{ fontSize: 13, color: "#9CA3AF" }}>
+                  Nenhuma edição lançada. Clique em "Lançar edição" para gerar o primeiro link público.
+                </p>
+              ) : (
+                <div className="space-y-2">
+                  {edicoesSelected.map((ed) => {
+                    const sc = statusColor(ed.status === "agendada" ? "rascunho" : ed.status);
+                    const copied = copiedEdicaoId === ed.id;
+                    return (
+                      <div
+                        key={ed.id}
+                        className="flex items-center gap-3 rounded-lg p-3"
+                        style={{ backgroundColor: "#FAFAFA", border: "1px solid #F0EDE8" }}
+                      >
+                        <span
+                          className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
+                          style={{ backgroundColor: "#00538C", color: "white" }}
+                        >
+                          {ed.numero_edicao}ª
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                              style={{ backgroundColor: sc.bg, color: sc.text }}
+                            >
+                              {ed.status}
+                            </span>
+                            <span style={{ fontSize: 11, color: "#6B7280" }}>
+                              {ed.total_respostas} resposta{ed.total_respostas !== 1 ? "s" : ""}
+                            </span>
+                          </div>
+                          <p className="truncate" style={{ fontSize: 11, color: "#9CA3AF", marginTop: 2 }}>
+                            {window.location.origin}/pesquisa/{ed.id}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => copyEdicaoLink(ed.id)}
+                          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
+                          style={{
+                            backgroundColor: copied ? "#E8F5E9" : "#1B1D40",
+                            color: copied ? "#2E7D32" : "white",
+                          }}
+                          title="Copiar link desta edição"
+                        >
+                          {copied ? <CheckCircle size={12} /> : <Copy size={12} />}
+                          {copied ? "Copiado!" : "Copiar link"}
+                        </button>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
@@ -431,9 +741,20 @@ export function AdicionarPesquisaPage() {
               </div>
             </div>
 
+            {/* Mensagem de erro do save */}
+            {saveError && (
+              <div
+                className="flex items-center gap-2 rounded-lg px-4 py-3"
+                style={{ backgroundColor: "#FFEBEE", border: "1px solid #FFCDD2" }}
+              >
+                <AlertCircle size={14} color="#C62828" />
+                <p style={{ fontSize: 13, color: "#C62828" }}>{saveError}</p>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
-                onClick={() => { setMode("view"); setSaved(false); }}
+                onClick={() => { setMode("view"); setSaved(false); setSaveError(null); }}
                 className="px-6 py-2.5 rounded-xl text-sm font-semibold"
                 style={{ border: "1px solid #E5E7EB", color: "#374151" }}
               >
@@ -441,11 +762,16 @@ export function AdicionarPesquisaPage() {
               </button>
               <button
                 onClick={handleSave}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold"
+                disabled={saving || !nome.trim()}
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
                 style={{ backgroundColor: "#1B1D40", color: "white" }}
               >
-                {saved && <CheckCircle size={14} />}
-                Salvar pesquisa
+                {saving ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : saved ? (
+                  <CheckCircle size={14} />
+                ) : null}
+                {saving ? "Salvando..." : "Salvar pesquisa"}
               </button>
               {mode === "edit" && (
                 <button
@@ -462,7 +788,7 @@ export function AdicionarPesquisaPage() {
         )}
       </div>
 
-      {/* Launch modal */}
+      {/* Modal — lançar edição */}
       {launchModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-md mx-4 rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: "white" }}>
@@ -541,6 +867,15 @@ export function AdicionarPesquisaPage() {
                       />
                     </div>
                   </div>
+                  {launchError && (
+                    <div
+                      className="flex items-center gap-2 rounded-lg px-3 py-2"
+                      style={{ backgroundColor: "#FFEBEE", border: "1px solid #FFCDD2" }}
+                    >
+                      <AlertCircle size={13} color="#C62828" />
+                      <p style={{ fontSize: 12, color: "#C62828" }}>{launchError}</p>
+                    </div>
+                  )}
                   <div className="flex gap-3 pt-2">
                     <button
                       onClick={() => setLaunchModal(false)}
@@ -551,11 +886,12 @@ export function AdicionarPesquisaPage() {
                     </button>
                     <button
                       onClick={handleConfirmLaunch}
-                      disabled={!launchStartDate}
-                      className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
+                      disabled={!launchStartDate || launching}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
                       style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
                     >
-                      Confirmar lançamento
+                      {launching && <Loader2 size={14} className="animate-spin" />}
+                      {launching ? "Lançando..." : "Confirmar lançamento"}
                     </button>
                   </div>
                 </>
@@ -565,7 +901,7 @@ export function AdicionarPesquisaPage() {
         </div>
       )}
 
-      {/* Delete confirm */}
+      {/* Modal — confirmar exclusão */}
       {deleteConfirm !== null && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-sm mx-4 rounded-2xl shadow-2xl p-6" style={{ backgroundColor: "white" }}>
@@ -573,7 +909,7 @@ export function AdicionarPesquisaPage() {
               Excluir pesquisa
             </h3>
             <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 20 }}>
-              Esta ação é irreversível. A pesquisa e todos os seus campos serão removidos.
+              Esta ação é irreversível. A pesquisa, todos os campos, edições e respostas serão removidos.
             </p>
             <div className="flex gap-3">
               <button
@@ -584,16 +920,12 @@ export function AdicionarPesquisaPage() {
                 Cancelar
               </button>
               <button
-                onClick={() => {
-                  deleteResearch(deleteConfirm);
-                  setSelected(null);
-                  setMode("view");
-                  setDeleteConfirm(null);
-                }}
-                className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
+                onClick={() => handleDelete(deleteConfirm)}
+                disabled={deleting}
+                className="flex-1 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
                 style={{ backgroundColor: "#C8102E", color: "white" }}
               >
-                Excluir
+                {deleting ? "Excluindo..." : "Excluir"}
               </button>
             </div>
           </div>
