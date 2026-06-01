@@ -16,7 +16,7 @@ from app.services.edicao import campos_combinados, edicao_aberta, load_edicao_co
 router = APIRouter(prefix="/publico", tags=["publico"])
 
 
-@router.get(
+@router.get(    
     "/edicoes/{edicao_id}",
     response_model=PublicEdicaoOut,
     summary="Formulário público de uma edição",
