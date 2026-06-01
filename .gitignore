@@ -38,4 +38,5 @@ Thumbs.db
 .claude/**/*.local.json
 
 # ── Credenciais de teste (senhas em texto puro — nunca versionar) ──────────────
+usuarios_test.txt
 
