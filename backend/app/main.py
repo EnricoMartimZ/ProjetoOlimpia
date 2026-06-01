@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers import auth, usuarios
-from app.routers import pesquisas, edicoes, publico, respostas
+from app.routers import pesquisas, edicoes, publico, respostas, pesquisador
 
 app = FastAPI(
     title="Projeto Olímpia",
@@ -24,3 +24,4 @@ app.include_router(pesquisas.router)
 app.include_router(edicoes.router)
 app.include_router(publico.router)
 app.include_router(respostas.router)
+app.include_router(pesquisador.router)

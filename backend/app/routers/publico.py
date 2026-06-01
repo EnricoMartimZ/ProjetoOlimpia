@@ -11,7 +11,12 @@ from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.edicao import PublicEdicaoOut
 from app.schemas.pesquisa import CampoOut
-from app.services.edicao import campos_combinados, edicao_aberta, load_edicao_com_campos
+from app.services.edicao import (
+    campos_combinados,
+    edicao_aberta,
+    edicao_de_campo,
+    load_edicao_com_campos,
+)
 
 router = APIRouter(prefix="/publico", tags=["publico"])
 
@@ -29,6 +34,11 @@ router = APIRouter(prefix="/publico", tags=["publico"])
 def formulario_publico(edicao_id: int, db: Session = Depends(get_db)):
     edicao = load_edicao_com_campos(db, edicao_id)
     if not edicao:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Edição não encontrada.")
+
+    # Formulários de pesquisa de campo não são públicos: o pesquisador acessa
+    # pela rota autenticada. Para o link público, equivale a não existir.
+    if edicao_de_campo(edicao):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Edição não encontrada.")
 
     return PublicEdicaoOut(

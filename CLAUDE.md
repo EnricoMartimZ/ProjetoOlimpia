@@ -118,8 +118,8 @@ O frontend estará disponível em `http://localhost:5173`.
 |---|---|---|---|
 | POST | `/auth/login` | Gera token JWT | Não |
 | POST | `/usuarios` | Cria usuário | Não |
-| GET | `/pesquisas` | Lista pesquisas (status + edicao_atual_id derivados) | Não |
-| POST | `/pesquisas` | Cria pesquisa + campos base | servidor |
+| GET | `/pesquisas` | Lista pesquisas (status + edicao_atual_id + tipo) | Não |
+| POST | `/pesquisas` | Cria pesquisa + campos base (campo `tipo`: publica/campo) | servidor |
 | GET | `/pesquisas/{id}` | Detalha pesquisa com campos | Não |
 | PUT | `/pesquisas/{id}` | Edita pesquisa (substitui campos) | servidor |
 | DELETE | `/pesquisas/{id}` | Exclui pesquisa em cascata | servidor |
@@ -130,14 +130,17 @@ O frontend estará disponível em `http://localhost:5173`.
 | POST | `/edicoes/{id}/respostas` | Envia resposta (grava usuario_id se logado) | Opcional |
 | GET | `/edicoes/{id}/respostas` | Respostas tabuladas (paginação + busca) | servidor |
 | DELETE | `/edicoes/{id}/respostas/{rid}` | Remove uma resposta | servidor |
+| GET | `/pesquisador/edicoes` | Edições abertas de pesquisas tipo `campo` | pesquisador_campo |
+| GET | `/pesquisador/edicoes/{id}` | Formulário de uma edição de campo | pesquisador_campo |
+| POST | `/pesquisador/edicoes/{id}/respostas` | Coleta de campo (vincula `usuario_id`) | pesquisador_campo |
 
 > Mapa completo das rotas (implementadas + planejadas) em `backend/docs/rotas.md`.
 > Sequência de integração incremental em `TASKS.md` (raiz).
 
 ## Estado da integração front ↔ back
 
-- **Integrado:** login, cadastro, guards por role, **CRUD de pesquisas**, **lançar edição + link público**, **formulário público (carrega e envia respostas)**, **consultar respostas (tabela dinâmica, busca, paginação, delete, CSV, novo registro)**
-- **Pendente:** diária média (Task 5), pesquisador de campo (Task 6), dashboards (Task 7)
+- **Integrado:** login, cadastro, guards por role, **CRUD de pesquisas (com tipo publica/campo)**, **lançar edição + link público**, **formulário público (carrega e envia respostas)**, **consultar respostas (tabela dinâmica, busca, paginação, delete, CSV, novo registro)**, **pesquisas de campo (admin cria tipo `campo`; pesquisador loga, escolhe edição de campo aberta, coleta resposta vinculada ao seu usuário)**
+- **Pendente:** diária média (Task 5), dashboards (Task 7)
 
 ## Regras do time
 

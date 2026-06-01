@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel, field_validator
 
-from app.models.pesquisa import TipoCampoEnum
+from app.models.pesquisa import TipoCampoEnum, TipoPesquisaEnum
 
 
 class CampoCreate(BaseModel):
@@ -28,6 +28,8 @@ class PesquisaCreate(BaseModel):
 
     nome: str
     descricao: str = ""
+    # "publica" (link aberto) ou "campo" (coleta presencial pelo pesquisador).
+    tipo: TipoPesquisaEnum = TipoPesquisaEnum.publica
     campos: List[CampoCreate] = []
 
     @field_validator("nome")
@@ -43,6 +45,7 @@ class PesquisaUpdate(BaseModel):
 
     nome: Optional[str] = None
     descricao: Optional[str] = None
+    tipo: Optional[TipoPesquisaEnum] = None
     campos: Optional[List[CampoCreate]] = None
 
 
@@ -66,6 +69,7 @@ class PesquisaListOut(BaseModel):
     id: int
     nome: str
     descricao: Optional[str]
+    tipo: TipoPesquisaEnum
     status: str
     total_edicoes: int
     # ID da edição cujo link público deve ser compartilhado (ativa, ou a mais recente). None se rascunho.
@@ -78,6 +82,7 @@ class PesquisaOut(BaseModel):
     id: int
     nome: str
     descricao: Optional[str]
+    tipo: TipoPesquisaEnum
     criado_em: datetime
     status: str
     total_edicoes: int

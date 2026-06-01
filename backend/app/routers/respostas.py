@@ -15,7 +15,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from app.database import get_db
 from app.dependencies import get_optional_user, require_servidor
-from app.models.resposta import Coletou, Resposta
+from app.models.resposta import Resposta
 from app.models.usuario import Usuario
 from app.schemas.resposta import (
     CampoHeader,
@@ -24,7 +24,8 @@ from app.schemas.resposta import (
     RespostaOut,
     RespostasTabela,
 )
-from app.services.edicao import campos_combinados, edicao_aberta, load_edicao_com_campos
+from app.services.edicao import campos_combinados, edicao_de_campo, load_edicao_com_campos
+from app.services.resposta import registrar_resposta
 
 router = APIRouter(tags=["respostas"])
 
@@ -34,7 +35,9 @@ def _carregar_respostas(db: Session, ids: list) -> list:
     if not ids:
         return []
     encontradas = db.scalars(
-        select(Resposta).where(Resposta.id.in_(ids)).options(selectinload(Resposta.coletas))
+        select(Resposta)
+        .where(Resposta.id.in_(ids))
+        .options(selectinload(Resposta.coletas), selectinload(Resposta.usuario))
     ).all()
     por_id = {r.id: r for r in encontradas}
     return [por_id[i] for i in ids if i in por_id]
@@ -46,6 +49,7 @@ def _para_linha(resposta: Resposta) -> RespostaLinha:
         resposta_id=resposta.id,
         timestamp_envio=resposta.timestamp_envio,
         usuario_id=resposta.usuario_id,
+        usuario_nome=resposta.usuario.nome if resposta.usuario else None,
         valores={str(c.campo_id): c.atributo_texto for c in resposta.coletas},
     )
 
@@ -56,11 +60,13 @@ def _para_linha(resposta: Resposta) -> RespostaLinha:
     status_code=status.HTTP_201_CREATED,
     summary="Enviar resposta a uma edição",
     description=(
-        "Registra um envio de formulário (público). Não exige autenticação, mas se "
-        "um Bearer token válido for enviado (pesquisador de campo), o `usuario_id` é "
-        "gravado na resposta para rastreabilidade."
+        "Registra um envio de formulário público. Não exige autenticação, mas se "
+        "um Bearer token válido for enviado, o `usuario_id` é gravado na resposta. "
+        "Pesquisas do tipo 'campo' não são respondidas por aqui — usam o fluxo "
+        "autenticado em `/pesquisador/edicoes/{id}/respostas`."
     ),
     responses={
+        403: {"description": "Edição de pesquisa de campo — use o fluxo do pesquisador."},
         404: {"description": "Edição não encontrada."},
         409: {"description": "Edição não está aceitando respostas."},
         422: {"description": "Campo inválido ou duplicado na resposta."},
@@ -76,45 +82,17 @@ def enviar_resposta(
     if not edicao:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Edição não encontrada.")
 
-    if not edicao_aberta(edicao):
+    # Pesquisa de campo só aceita coleta pelo pesquisador autenticado (rota dedicada).
+    if edicao_de_campo(edicao):
         raise HTTPException(
-            status.HTTP_409_CONFLICT,
-            "Esta edição não está aceitando respostas no momento.",
+            status.HTTP_403_FORBIDDEN,
+            "Esta é uma pesquisa de campo. Responda pelo fluxo do pesquisador "
+            "de campo (`/pesquisador/edicoes/{id}/respostas`).",
         )
 
-    # Valida que todo campo_id enviado pertence à edição (campos fixos + extras)
-    ids_validos = {c.id for c in campos_combinados(edicao)}
-    enviados = [item.campo_id for item in dados.respostas]
-
-    desconhecidos = [cid for cid in enviados if cid not in ids_validos]
-    if desconhecidos:
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            f"Campos não pertencem a esta edição: {desconhecidos}.",
-        )
-
-    if len(enviados) != len(set(enviados)):
-        raise HTTPException(
-            status.HTTP_422_UNPROCESSABLE_ENTITY,
-            "Há campos duplicados na resposta.",
-        )
-
-    resposta = Resposta(
-        edicao_id=edicao_id,
-        usuario_id=usuario.id if usuario else None,
+    resposta = registrar_resposta(
+        db, edicao, dados, usuario_id=usuario.id if usuario else None
     )
-    db.add(resposta)
-    db.flush()  # Gera o ID da resposta para os registros coletou
-
-    for item in dados.respostas:
-        db.add(Coletou(
-            campo_id=item.campo_id,
-            resposta_id=resposta.id,
-            atributo_texto=item.atributo_texto,
-        ))
-
-    db.commit()
-    db.refresh(resposta)
 
     return RespostaOut(
         id=resposta.id,

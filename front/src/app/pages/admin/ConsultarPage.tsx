@@ -199,10 +199,11 @@ export function ConsultarPage() {
         por_pagina: total,
         busca: search || undefined,
       });
-      const headers = ["ID", "Data/Hora", ...all.campos_header.map((c) => c.texto_pergunta)];
+      const headers = ["ID", "Data/Hora", "Coletado por", ...all.campos_header.map((c) => c.texto_pergunta)];
       const rows = all.dados.map((r) => [
         `#${r.resposta_id.toString().padStart(4, "0")}`,
         formatTimestamp(r.timestamp_envio),
+        r.usuario_nome ?? "Público / anônimo",
         ...all.campos_header.map((c) => r.valores[String(c.id)] ?? ""),
       ]);
       const csv = [headers, ...rows]
@@ -362,6 +363,7 @@ export function ConsultarPage() {
               <tr style={{ backgroundColor: "#1B1D40" }}>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>ID</th>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Data/Hora</th>
+                <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Coletado por</th>
                 {header.map((c) => (
                   <th key={c.id} className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>
                     {c.texto_pergunta}
@@ -373,14 +375,14 @@ export function ConsultarPage() {
             <tbody>
               {loading ? (
                 <tr>
-                  <td colSpan={header.length + 3} className="px-4 py-10 text-center" style={{ color: "#9CA3AF", fontSize: 13 }}>
+                  <td colSpan={header.length + 4} className="px-4 py-10 text-center" style={{ color: "#9CA3AF", fontSize: 13 }}>
                     <Loader2 size={18} className="animate-spin inline mr-2" />
                     Carregando...
                   </td>
                 </tr>
               ) : !tabela || tabela.dados.length === 0 ? (
                 <tr>
-                  <td colSpan={header.length + 3} className="px-4 py-10 text-center" style={{ color: "#9CA3AF", fontSize: 13 }}>
+                  <td colSpan={header.length + 4} className="px-4 py-10 text-center" style={{ color: "#9CA3AF", fontSize: 13 }}>
                     {selectedEdicao === "" ? "Selecione uma edição." : "Nenhum registro encontrado."}
                   </td>
                 </tr>
@@ -392,6 +394,13 @@ export function ConsultarPage() {
                     </td>
                     <td className="px-4 py-3 text-xs" style={{ color: "#374151" }}>
                       {formatTimestamp(r.timestamp_envio)}
+                    </td>
+                    <td className="px-4 py-3 text-xs whitespace-nowrap">
+                      {r.usuario_nome ? (
+                        <span style={{ color: "#1B1D40", fontWeight: 600 }}>{r.usuario_nome}</span>
+                      ) : (
+                        <span style={{ color: "#9CA3AF" }}>Público / anônimo</span>
+                      )}
                     </td>
                     {header.map((c) => (
                       <td key={c.id} className="px-4 py-3 text-xs" style={{ color: "#374151" }}>

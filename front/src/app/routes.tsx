@@ -9,7 +9,6 @@ import { AdicionarPesquisaPage } from "./pages/admin/AdicionarPesquisaPage";
 import { ResearcherLayout } from "./pages/researcher/ResearcherLayout";
 import { ResearcherDashboard } from "./pages/researcher/ResearcherDashboard";
 import { ResponderPage } from "./pages/researcher/ResponderPage";
-import { NovaPesquisaPage } from "./pages/researcher/NovaPesquisaPage";
 import { PublicSurveyPage } from "./pages/PublicSurveyPage";
 import { PublicStatsPage } from "./pages/PublicStatsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -55,7 +54,6 @@ export const router = createBrowserRouter([
         children: [
           { index: true, Component: ResearcherDashboard },
           { path: "responder", Component: ResponderPage },
-          { path: "nova-pesquisa", Component: NovaPesquisaPage },
         ],
       },
     ],

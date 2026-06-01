@@ -81,9 +81,13 @@ export interface CampoCreateInput {
   ordem: number;
 }
 
+/** Natureza da pesquisa: respondida pelo público ou coletada por pesquisador de campo. */
+export type TipoPesquisa = "publica" | "campo";
+
 export interface PesquisaCreateInput {
   nome: string;
   descricao: string;
+  tipo: TipoPesquisa;
   campos: CampoCreateInput[];
 }
 
@@ -102,6 +106,7 @@ export interface PesquisaListItem {
   id: number;
   nome: string;
   descricao: string | null;
+  tipo: TipoPesquisa;
   status: "rascunho" | "ativa" | "encerrada";
   total_edicoes: number;
   /** ID da edição cujo link público compartilhar (ativa ou mais recente); null se rascunho. */
@@ -241,6 +246,7 @@ export interface RespostaLinha {
   resposta_id: number;
   timestamp_envio: string;
   usuario_id: number | null;
+  usuario_nome: string | null; // nome de quem coletou (null se anônima/pública)
   valores: Record<string, string>; // chave = campo_id (string)
 }
 
@@ -272,4 +278,35 @@ export async function getRespostas(
 
 export async function deleteResposta(edicaoId: number, respostaId: number): Promise<void> {
   return request<void>(`/edicoes/${edicaoId}/respostas/${respostaId}`, { method: "DELETE" });
+}
+
+// ---------------------------------------------------------------------------
+// Pesquisador de campo (rotas autenticadas — role pesquisador_campo)
+// ---------------------------------------------------------------------------
+
+/**
+ * Lista as edições abertas de pesquisas do tipo "campo" disponíveis para coleta.
+ * Requer token de um usuário com role pesquisador_campo.
+ */
+export async function getEdicoesCampo(): Promise<EdicaoAPI[]> {
+  return request<EdicaoAPI[]>("/pesquisador/edicoes");
+}
+
+/** Carrega o formulário de uma edição de campo (campos fixos + extras). */
+export async function getEdicaoCampoForm(edicaoId: number): Promise<PublicEdicaoAPI> {
+  return request<PublicEdicaoAPI>(`/pesquisador/edicoes/${edicaoId}`);
+}
+
+/**
+ * Registra uma coleta de campo. A resposta é vinculada automaticamente ao
+ * pesquisador autenticado (usuario_id) e à edição.
+ */
+export async function submitRespostaCampo(
+  edicaoId: number,
+  respostas: ColetouItemInput[],
+): Promise<RespostaOutAPI> {
+  return request<RespostaOutAPI>(`/pesquisador/edicoes/${edicaoId}/respostas`, {
+    method: "POST",
+    body: JSON.stringify({ respostas }),
+  });
 }

@@ -49,6 +49,8 @@ class RespostaLinha(BaseModel):
     resposta_id: int
     timestamp_envio: datetime
     usuario_id: Optional[int]
+    # Nome do pesquisador que coletou (None se resposta pública anônima).
+    usuario_nome: Optional[str]
     # valores[str(campo_id)] = atributo_texto (chaves são string por ser JSON)
     valores: Dict[str, str]
 

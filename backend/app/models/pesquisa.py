@@ -1,6 +1,6 @@
 import enum
 
-from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, ForeignKey, Integer, String, Text, func
+from sqlalchemy import Boolean, Column, DateTime, Enum as SAEnum, ForeignKey, Integer, JSON, String, Text, func
 from sqlalchemy.dialects.postgresql import ARRAY
 from sqlalchemy.orm import relationship
 
@@ -19,6 +19,23 @@ class TipoCampoEnum(str, enum.Enum):
     sim_nao = "sim_nao"
 
 
+# Em produção (PostgreSQL) `opcoes` é um TEXT[]. Nos testes (SQLite, que não tem
+# tipo array nativo) o mesmo dado é serializado como JSON. O `with_variant` mantém
+# o model único e o código Python continua lidando com listas em ambos os casos.
+OPCOES_TYPE = ARRAY(String).with_variant(JSON, "sqlite")
+
+
+class TipoPesquisaEnum(str, enum.Enum):
+    """
+    Natureza da pesquisa:
+    - publica: respondida por qualquer pessoa pelo link público (cidadão/hóspede).
+    - campo: coletada presencialmente por um pesquisador de campo autenticado.
+    """
+
+    publica = "publica"
+    campo = "campo"
+
+
 class Pesquisa(Base):
     """Template de formulário. Define os campos fixos reutilizados em todas as edições."""
 
@@ -27,6 +44,9 @@ class Pesquisa(Base):
     id = Column(Integer, primary_key=True)
     nome = Column(String(150), unique=True, nullable=False)
     descricao = Column(Text)
+    # "publica" (link público) ou "campo" (coleta presencial por pesquisador).
+    # String simples (como usuario.role) para mudar o mínimo no banco — sem novo ENUM.
+    tipo = Column(String(20), nullable=False, server_default="publica", default="publica")
     criado_em = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     campos = relationship(
@@ -61,7 +81,7 @@ class Campo(Base):
         SAEnum(TipoCampoEnum, name="tipo_campo", create_type=False),
         nullable=False,
     )
-    opcoes = Column(ARRAY(String), nullable=False, server_default="{}", default=list)
+    opcoes = Column(OPCOES_TYPE, nullable=False, server_default="{}", default=list)
     obrigatorio = Column(Boolean, nullable=False, server_default="false", default=False)
     ordem = Column(Integer, nullable=False, server_default="0", default=0)
     regex = Column(Text, server_default="", default="")

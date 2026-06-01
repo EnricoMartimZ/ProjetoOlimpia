@@ -15,10 +15,13 @@ export interface Field {
   opcoes?: string[];
 }
 
+export type TipoPesquisa = "publica" | "campo";
+
 export interface Research {
   id: number;
   nome: string;
   descricao: string;
+  tipo: TipoPesquisa;
   status: string;
   edicoes: number;
   publicLink?: string;

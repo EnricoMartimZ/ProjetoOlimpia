@@ -1,19 +1,20 @@
 import { AppLayout } from "../../components/AppLayout";
+import { useAuth } from "../../context/AuthContext";
 
 const NAV_ITEMS = [
   { label: "Visualizar", path: "/pesquisador" },
   { label: "Responder pesquisa", path: "/pesquisador/responder" },
-  { label: "Nova pesquisa", path: "/pesquisador/nova-pesquisa" },
 ];
 
 export function ResearcherLayout() {
+  const { user } = useAuth();
   return (
     <AppLayout
       navItems={NAV_ITEMS}
       homePath="/pesquisador"
       roleBadge="Pesquisador"
-      userName="Ana Paula Silva"
-      userEmail="pesquisador@olimpia.sp.gov.br"
+      userName={user?.nome ?? "Pesquisador"}
+      userEmail=""
     />
   );
 }

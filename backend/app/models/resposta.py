@@ -20,6 +20,9 @@ class Resposta(Base):
         back_populates="resposta",
         cascade="all, delete-orphan",
     )
+    # Pesquisador que coletou (None para resposta pública anônima). Só leitura —
+    # usado para exibir o nome de quem coletou na consulta do admin.
+    usuario = relationship("Usuario")
 
 
 class Coletou(Base):

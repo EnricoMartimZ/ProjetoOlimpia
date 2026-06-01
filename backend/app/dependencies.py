@@ -1,10 +1,11 @@
 """
 Dependências compartilhadas pelos routers.
 
-Três níveis de acesso:
-- `get_current_user`   → exige um token válido (401 se ausente/inválido)
-- `require_servidor`   → exige token válido E role "servidor" (403 caso contrário)
-- `get_optional_user`  → aceita token, mas não exige (nunca levanta erro)
+Níveis de acesso:
+- `get_current_user`     → exige um token válido (401 se ausente/inválido)
+- `require_servidor`     → exige token válido E role "servidor" (403 caso contrário)
+- `require_pesquisador`  → exige token válido E role "pesquisador_campo" (403 caso contrário)
+- `get_optional_user`    → aceita token, mas não exige (nunca levanta erro)
 """
 
 from typing import Optional
@@ -59,6 +60,20 @@ def require_servidor(usuario: Usuario = Depends(get_current_user)) -> Usuario:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Esta ação é exclusiva para servidores da Secretaria.",
+        )
+    return usuario
+
+
+def require_pesquisador(usuario: Usuario = Depends(get_current_user)) -> Usuario:
+    """
+    Garante que o usuário autenticado tem role "pesquisador_campo".
+    Use nas rotas de coleta de campo (listar/abrir/responder pesquisas do tipo
+    "campo"). Levanta 403 para qualquer outra role (inclusive servidor).
+    """
+    if usuario.role != "pesquisador_campo":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Esta ação é exclusiva para pesquisadores de campo.",
         )
     return usuario
 

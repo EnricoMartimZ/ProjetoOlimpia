@@ -42,6 +42,7 @@ CREATE TABLE pesquisa (
     id          SERIAL PRIMARY KEY,
     nome        VARCHAR(150) NOT NULL UNIQUE,
     descricao   TEXT,
+    tipo        VARCHAR(20) NOT NULL DEFAULT 'publica',  -- 'publica' | 'campo'
     criado_em   TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

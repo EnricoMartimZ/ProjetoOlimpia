@@ -31,6 +31,11 @@ def edicao_aberta(edicao: Edicao, hoje: Optional[date] = None) -> bool:
     return status_edicao(edicao, hoje) == "ativa"
 
 
+def edicao_de_campo(edicao: Edicao) -> bool:
+    """True se a edição pertence a uma pesquisa do tipo "campo" (coleta presencial)."""
+    return edicao.pesquisa.tipo == "campo"
+
+
 def gerar_hash_campo_edicao(edicao_id: int, texto: str) -> str:
     """SHA-256 de 'e{edicao_id}:{texto}' — unicidade dos campos extras por edição."""
     return hashlib.sha256(f"e{edicao_id}:{texto}".encode()).hexdigest()

@@ -16,7 +16,7 @@ import {
   type PesquisaDetalhada,
   type EdicaoAPI,
 } from "../../../services/api";
-import type { Field, FieldType, Research } from "../../../types";
+import type { Field, FieldType, Research, TipoPesquisa } from "../../../types";
 
 // ---------------------------------------------------------------------------
 // Helpers de conversão entre tipos da API e tipos internos do frontend
@@ -37,6 +37,7 @@ function apiToResearch(p: PesquisaDetalhada | PesquisaListItem): Research {
     id: p.id,
     nome: p.nome,
     descricao: p.descricao ?? "",
+    tipo: p.tipo,
     status: p.status,
     edicoes: p.total_edicoes,
     campos,
@@ -80,6 +81,7 @@ export function AdicionarPesquisaPage() {
   const [mode, setMode] = useState<"view" | "edit" | "new">("view");
   const [nome, setNome] = useState("");
   const [descricao, setDescricao] = useState("");
+  const [tipo, setTipo] = useState<TipoPesquisa>("publica");
   const [campos, setCampos] = useState<Field[]>([]);
   const [saved, setSaved] = useState(false);
 
@@ -172,6 +174,7 @@ export function AdicionarPesquisaPage() {
   const startNew = () => {
     setNome("");
     setDescricao("");
+    setTipo("publica");
     setCampos([]);
     setSelected(null);
     setMode("new");
@@ -183,6 +186,7 @@ export function AdicionarPesquisaPage() {
     setSelected(r);
     setNome(r.nome);
     setDescricao(r.descricao);
+    setTipo(r.tipo);
     setCampos([...r.campos]);
     setMode("edit");
     setSaved(false);
@@ -240,6 +244,7 @@ export function AdicionarPesquisaPage() {
       const payload = {
         nome: nome.trim(),
         descricao: descricao.trim(),
+        tipo,
         campos: camposToApiInput(campos),
       };
 
@@ -481,7 +486,19 @@ export function AdicionarPesquisaPage() {
             <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
               <div className="flex items-start justify-between">
                 <div>
-                  <h1 style={{ fontWeight: 700, fontSize: 20, color: "#1B1D40" }}>{selected.nome}</h1>
+                  <div className="flex items-center gap-2">
+                    <h1 style={{ fontWeight: 700, fontSize: 20, color: "#1B1D40" }}>{selected.nome}</h1>
+                    <span
+                      className="px-2 py-0.5 rounded-full text-xs font-semibold"
+                      style={
+                        selected.tipo === "campo"
+                          ? { backgroundColor: "#E3E8F5", color: "#00538C" }
+                          : { backgroundColor: "#E8F5E9", color: "#2E7D32" }
+                      }
+                    >
+                      {selected.tipo === "campo" ? "De campo" : "Pública"}
+                    </span>
+                  </div>
                   <p style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>{selected.descricao}</p>
                 </div>
                 <div className="flex gap-2">
@@ -648,6 +665,32 @@ export function AdicionarPesquisaPage() {
                     className="w-full mt-1 px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
                     style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
                   />
+                </div>
+                <div>
+                  <label style={{ fontSize: 12, fontWeight: 600, color: "#374151" }}>Tipo de pesquisa *</label>
+                  <div className="grid grid-cols-2 gap-3 mt-1">
+                    {([
+                      { value: "publica", titulo: "Pública", desc: "Respondida por qualquer pessoa pelo link público." },
+                      { value: "campo", titulo: "De campo", desc: "Coletada presencialmente por um pesquisador de campo." },
+                    ] as const).map((opt) => {
+                      const active = tipo === opt.value;
+                      return (
+                        <button
+                          key={opt.value}
+                          type="button"
+                          onClick={() => setTipo(opt.value)}
+                          className="text-left rounded-lg p-3 transition-all"
+                          style={{
+                            border: `2px solid ${active ? "#F5C100" : "#E5E7EB"}`,
+                            backgroundColor: active ? "#FFFBEB" : "#F9F9F9",
+                          }}
+                        >
+                          <p style={{ fontSize: 13, fontWeight: 700, color: "#1B1D40" }}>{opt.titulo}</p>
+                          <p style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{opt.desc}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

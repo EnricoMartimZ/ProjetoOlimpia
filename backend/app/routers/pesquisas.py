@@ -92,6 +92,7 @@ def _build_out(p: Pesquisa) -> PesquisaOut:
         id=p.id,
         nome=p.nome,
         descricao=p.descricao,
+        tipo=p.tipo,
         criado_em=p.criado_em,
         status=_calcular_status(p.edicoes),
         total_edicoes=len(p.edicoes),
@@ -137,6 +138,7 @@ def listar_pesquisas(db: Session = Depends(get_db)):
             id=p.id,
             nome=p.nome,
             descricao=p.descricao,
+            tipo=p.tipo,
             status=_calcular_status(p.edicoes),
             total_edicoes=len(p.edicoes),
             edicao_atual_id=_edicao_atual_id(p.edicoes),
@@ -164,7 +166,7 @@ def criar_pesquisa(
     if db.scalars(select(Pesquisa).where(Pesquisa.nome == dados.nome)).first():
         raise HTTPException(status.HTTP_409_CONFLICT, f'Já existe uma pesquisa com o nome "{dados.nome}".')
 
-    pesquisa = Pesquisa(nome=dados.nome, descricao=dados.descricao or None)
+    pesquisa = Pesquisa(nome=dados.nome, descricao=dados.descricao or None, tipo=dados.tipo.value)
     db.add(pesquisa)
     db.flush()  # Gera o ID para usar no hash dos campos
 
@@ -223,6 +225,9 @@ def atualizar_pesquisa(
 
     if dados.descricao is not None:
         p.descricao = dados.descricao or None
+
+    if dados.tipo is not None:
+        p.tipo = dados.tipo.value
 
     if dados.campos is not None:
         # Substitui todos os campos base. Flush garante que os hashes antigos são liberados
