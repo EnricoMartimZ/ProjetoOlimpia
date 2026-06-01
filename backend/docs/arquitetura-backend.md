@@ -48,7 +48,7 @@ backend/
 ├── docs/
 │   ├── modelo-banco.md       # DER + migrações aplicadas
 │   ├── requisitos.md
-│   ├── rotas.md              # Mapa completo de rotas (status + payloads)
+│   ├── api.md                # Referência das rotas atuais (request/response)
 │   └── arquitetura-backend.md
 ├── ../schema/migrations/     # Migrações SQL incrementais (001, 002…)
 ├── .env                      # NÃO sobe no git
@@ -81,7 +81,7 @@ As rotas declaram o nível de acesso via dependência, sem repetir checagens de 
 
 ## Endpoints
 
-Legenda: ✅ implementado · ⏳ planejado. Detalhes e exemplos de payload em `rotas.md`.
+Legenda: ✅ implementado · ⏳ planejado. Detalhes e exemplos de payload em `api.md`.
 
 ### Autenticação
 ```

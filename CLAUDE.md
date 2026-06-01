@@ -50,26 +50,29 @@ ProjetoOlimpia/
     │   └── versions/
     ├── app/
     │   ├── main.py              # Entrada da aplicação, CORS, registra routers
-    │   ├── database.py          # Conexão com o Neon (PostgreSQL)
-    │   ├── dependencies.py      # get_db, get_current_user (JWT)
-    │   ├── models/              # Tabelas do banco (SQLAlchemy)
+    │   ├── database.py          # Conexão com o Neon (PostgreSQL); lê .env da raiz
+    │   ├── dependencies.py      # get_db; get_current_user / require_servidor / require_pesquisador / get_optional_user
+    │   ├── models/              # Tabelas do banco (SQLAlchemy) — pesquisa.tipo, resposta.usuario, etc.
     │   ├── schemas/             # Validação entrada/saída (Pydantic)
-    │   ├── routers/             # Endpoints da API
-    │   └── services/            # Lógica de negócio
+    │   ├── routers/             # Endpoints — auth, usuarios, pesquisas, edicoes, publico, respostas, pesquisador
+    │   └── services/            # Lógica de negócio — edicao.py, resposta.py, auth.py
+    ├── tests/                   # pytest (SQLite em memória) — conftest + unit + integração
     ├── docs/
     │   ├── modelo-banco.md      # Resumo do DER
     │   ├── requisitos.md        # Requisitos do sistema
     │   └── arquitetura-backend.md
-    ├── .env                     # NÃO sobe no git
-    ├── .env.example             # Template do .env
     ├── requirements.txt
+    ├── requirements-dev.txt     # deps só de teste (pytest, httpx)
     └── alembic.ini
+# .env fica na RAIZ do projeto (ProjetoOlimpia/.env), não em backend/
 ```
 
 ## Variáveis de ambiente
 
-### Backend — `backend/.env`
-Copie `.env.example` para `.env` e preencha com os valores reais (peça ao tech lead).
+### Backend — `.env` (na **raiz do projeto**)
+O `database.py` usa `load_dotenv()` (`find_dotenv()`), que sobe os diretórios e
+acha o `.env` em `ProjetoOlimpia/.env` — **não** em `backend/.env`. Peça os valores
+reais ao tech lead.
 ```
 DATABASE_URL=postgresql://usuario:senha@host/banco?sslmode=require
 SECRET_KEY=sua_chave_secreta
@@ -107,7 +110,7 @@ O frontend estará disponível em `http://localhost:5173`.
 
 - O backend emite JWT via `POST /auth/login` com `{ email, senha }`
 - O token contém: `sub` (id), `nome`, `role`, `exp`
-- Roles existentes: `"servidor"` (admin) e `"pesquisador_campo"`
+- Roles existentes: `"servidor"` (admin da Secretaria — cria pesquisas/edições, consulta dados) e `"pesquisador_campo"` (coleta presencial de pesquisas do tipo `campo`; **não** cria pesquisas)
 - O frontend armazena o token em `localStorage` via `AuthContext`
 - Rotas protegidas usam o guard `RequireRole` em `routes.tsx`
 - A aba selecionada no login (ADM / Pesquisador) é validada contra o role do token — login na aba errada retorna erro
@@ -134,23 +137,91 @@ O frontend estará disponível em `http://localhost:5173`.
 | GET | `/pesquisador/edicoes/{id}` | Formulário de uma edição de campo | pesquisador_campo |
 | POST | `/pesquisador/edicoes/{id}/respostas` | Coleta de campo (vincula `usuario_id`) | pesquisador_campo |
 
-> Mapa completo das rotas (implementadas + planejadas) em `backend/docs/rotas.md`.
+> Referência precisa das rotas atuais (request/response) em `backend/docs/api.md`.
 > Sequência de integração incremental em `TASKS.md` (raiz).
 
-## Estado da integração front ↔ back
+## Tipos de pesquisa e coleta de campo
 
-- **Integrado:** login, cadastro, guards por role, **CRUD de pesquisas (com tipo publica/campo)**, **lançar edição + link público**, **formulário público (carrega e envia respostas)**, **consultar respostas (tabela dinâmica, busca, paginação, delete, CSV, novo registro)**, **pesquisas de campo (admin cria tipo `campo`; pesquisador loga, escolhe edição de campo aberta, coleta resposta vinculada ao seu usuário)**
-- **Pendente:** diária média (Task 5), dashboards (Task 7)
+A coluna `pesquisa.tipo` (`publica` | `campo`, default `publica`) define como a pesquisa é respondida:
+
+- **`publica`** — respondida por qualquer pessoa pelo link `/pesquisa/{edicaoId}`. Sem login (mas grava `usuario_id` se houver token). Endpoints: `GET /publico/edicoes/{id}` + `POST /edicoes/{id}/respostas`.
+- **`campo`** — coletada presencialmente por um **pesquisador de campo autenticado**. O servidor cria a pesquisa escolhendo o tipo; o pesquisador loga, lista as edições de campo abertas, abre o formulário e envia a resposta, que fica **vinculada ao `usuario_id` dele**.
+
+**Regras de acesso (aplicadas no backend):**
+- Rotas `/pesquisador/*` exigem role `pesquisador_campo` (`require_pesquisador`): servidor → 403, anônimo → 401.
+- O fluxo público recusa pesquisas de campo: `POST /edicoes/{id}/respostas` → 403 e `GET /publico/edicoes/{id}` → 404 quando a edição é de uma pesquisa `campo` (não expõe o formulário publicamente).
+- Na consulta do admin (`GET /edicoes/{id}/respostas`) cada linha traz `usuario_nome` (quem coletou) + `timestamp_envio`; `null` para respostas públicas anônimas.
+
+> Migração aplicada no Neon: `schema/migrations/003_add_pesquisa_tipo.sql`.
+
+## Frontend — páginas, rotas e integração
+
+Raiz: `App.tsx` → `AuthProvider` > `AppStoreProvider` > `RouterProvider`. Guard `RequireRole` em `routes.tsx`.
+`AppStore` (localStorage + `mockData.ts`) é legado e está sendo esvaziado conforme as páginas integram com a API.
+
+| Rota | Página | Role | Estado |
+|---|---|---|---|
+| `/` | `LoginPage` | — | ✅ Integrado (`POST /auth/login`) |
+| `/cadastro` | `CadastroPage` | — | ✅ Integrado (`POST /usuarios`) |
+| `/admin` | `DashboardPage` | servidor | ⚠️ Mock (KPIs/gráficos do `mockData` — Task 7) |
+| `/admin/adicionar-pesquisa` | `AdicionarPesquisaPage` | servidor | ✅ Integrado — CRUD de pesquisas, **seletor de tipo publica/campo**, lançar edição, links públicos |
+| `/admin/consultar` | `ConsultarPage` | servidor | ✅ Integrado — tabela dinâmica, busca, paginação, delete, CSV, novo registro, **coluna "Coletado por"** |
+| `/admin/diaria-media` | `DiariaMediaPage` | servidor | ⚠️ Parcial mock (Task 5) |
+| `/pesquisador` | `ResearcherDashboard` | pesquisador_campo | ⚠️ Mock (stats hardcoded; nome vem do `AuthContext` via layout) |
+| `/pesquisador/responder` | `ResponderPage` | pesquisador_campo | ✅ Integrado — lista edições de campo abertas, carrega form, envia coleta vinculada ao usuário logado |
+| `/pesquisa/:id` | `PublicSurveyPage` | — | ✅ Integrado — form público; recusa edições de campo |
+| `/dados-publicos` | `PublicStatsPage` | — | ⚠️ Mock (Task 7) |
+
+> **Removido:** a rota `/pesquisador/nova-pesquisa` e a página `NovaPesquisaPage` — pesquisador de campo **não cria pesquisas** (UI removida; backend já barrava via `require_servidor`).
+
+**`services/api.ts`** centraliza as chamadas. Helper `request()` injeta `Authorization: Bearer` automático. Funções: `login`, `cadastrar`, `getPesquisas`/`getPesquisa`/`createPesquisa`/`updatePesquisa`/`deletePesquisa` (incluem `tipo`), `getEdicoes`/`launchEdicao`, `getPublicEdicao`, `submitResposta`, `getRespostas`/`deleteResposta`, e o fluxo de campo `getEdicoesCampo`/`getEdicaoCampoForm`/`submitRespostaCampo`.
+
+## Testes (backend)
+
+Testes em `backend/tests/` com **pytest**. Rodam contra **SQLite em memória** (não tocam o Neon).
+Para isso, `Campo.opcoes` usa `ARRAY(String).with_variant(JSON, "sqlite")` — mesmo schema nos dois bancos.
+
+```bash
+cd backend
+source venv/bin/activate
+pip install -r requirements-dev.txt   # pytest + httpx (deps só de teste)
+pytest tests/                          # 28 testes (unit + integração)
+```
+
+- `tests/conftest.py` — engine SQLite (StaticPool), override de `get_db`, fixtures `client`, `servidor`, `pesquisador`.
+- `tests/test_unit.py` — validações de schema (`tipo`), helpers de status/tipo de edição, dependências de acesso, token JWT.
+- `tests/test_pesquisas_campo.py` — integração: criar pesquisa de campo, authz (`pesquisador_campo` vs `servidor` vs anônimo), resposta vinculada ao pesquisador + edição, bloqueio do fluxo público para campo, nome do coletor na consulta.
 
 ## Regras do time
 
-- **Nunca rodar migrations sozinho** — migrations passam pelo tech lead (P1)
-- **Nunca subir o `.env` ou `.env.local`** — apenas o `.env.example` vai para o git
-- **Nunca commitar direto na main** — usar branches e Pull Requests
-- Cada pessoa é responsável pelos módulos descritos em `docs/arquitetura-backend.md`
+Time atual: **3 pessoa no backend** (dona de `backend/`) e **3 pessoa no frontend** (dona de `front/`).
+
+### Donos de cada área
+- **Backend** → tudo em `backend/` (models, schemas, routers, services, migrations).
+- **Frontend** → tudo em `front/` (páginas, componentes, `services/api.ts`).
+- Arquivos de raiz (`CLAUDE.md`, `TASKS.md`, `docs/`, `schema/`) são compartilhados — quem mexer avisa o outro.
+
+### A API é o contrato (a regra que evita pisar no pé do outro)
+A fronteira entre back e front é o **contrato da API**: as rotas + os formatos de entrada/saída.
+A fonte da verdade é a tabela de endpoints neste arquivo + `backend/docs/api.md`, e o espelho no front é `front/src/services/api.ts`.
+
+- **Backend não edita `front/` para "fazer funcionar".** Se uma mudança no back exige mudança no front, o trabalho no front é da pessoa do front.
+- **Prefira mudanças compatíveis:** adicionar campo/rota nova em vez de renomear/remover. Campo novo opcional não quebra o front.
+- **Mudança que quebra o contrato** (renomear/remover campo, mudar status code, mudar shape): (1) avise a pessoa do front **antes**; (2) atualize a tabela de endpoints + `backend/docs/api.md`; (3) deixe o ajuste do `api.ts`/telas para o front, ou faça em PR separado que ela revisa.
+- Quando o back terminar uma rota nova, o "handoff" é: documentar o contrato (request/response) e avisar — não implementar a tela.
+
+### Git
+- **Nunca commitar direto na main** — sempre branch + Pull Request.
+- **Um PR não deve misturar `backend/` e `front/`** sem necessidade. Se precisar tocar a área do outro, faça PR separado e peça review de quem é dono daquela área.
+- PR que altera `front/` precisa de review da pessoa do front; PR que altera `backend/`, da pessoa do back.
+
+### Segredos e banco
+- **Nunca rodar migrations sozinho** — migrations passam pelo tech lead (P1).
+- **Nunca subir `.env` (raiz), `front/.env.local` nem `usuarios_test.txt`** — segredos/senhas ficam fora do git (ver `.gitignore`).
 
 ## Documentação interna
 
+- Referência da API atual → `backend/docs/api.md`
 - Modelo do banco → `backend/docs/modelo-banco.md`
 - Requisitos do sistema → `backend/docs/requisitos.md`
 - Arquitetura e divisão do time → `backend/docs/arquitetura-backend.md`

@@ -2,6 +2,8 @@
 .env
 .env.local
 .env.*.local
+# credenciais de teste (senhas em texto puro — nunca versionar)
+usuarios_test.txt
 
 # ── Python ────────────────────────────────────────────────────────────────────
 backend/venv/
@@ -37,6 +39,5 @@ Thumbs.db
 .claude/settings.local.json
 .claude/**/*.local.json
 
-# ── Credenciais de teste (senhas em texto puro — nunca versionar) ──────────────
-usuarios_test.txt
+
 
