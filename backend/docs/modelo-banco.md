@@ -24,7 +24,12 @@ Template de um formulário. Define os campos base que se repetem em todas as edi
 | id | SERIAL | Chave primária |
 | nome | VARCHAR(150) | Único |
 | descricao | TEXT | — |
+| tipo | VARCHAR(20) | `publica` (respondida pelo link aberto) ou `campo` (coletada por pesquisador de campo logado). Default `publica` |
 | criado_em | TIMESTAMPTZ | Default `NOW()` |
+
+> **`tipo`** define o fluxo de resposta: pesquisas `campo` só são respondidas pelas rotas
+> `/pesquisador/*` (a resposta fica vinculada ao `usuario_id` do pesquisador) e **não** ficam
+> acessíveis pelo link público. Ver `backend/docs/api.md`.
 
 ### Edição
 Instância de uma Pesquisa em um período específico. Gera o link público do formulário.
@@ -123,7 +128,7 @@ Registro contínuo de preço por hospedagem, inserido manualmente pelo servidor 
 ## Resumo dos relacionamentos
 
 ```
-Usuario     (autenticação — sem relação direta com as demais tabelas)
+Usuario     1 ──── N    Resposta     (pesquisador que coletou; NULL se anônima)
 
 Pesquisa    1 ──── N    Edição
 Pesquisa    1 ──── N    Campo        (campos fixos)
@@ -135,12 +140,12 @@ Hospedagem  1 ──── N    Diária Média
 
 ## As 4 pesquisas do sistema
 
-| Pesquisa | Quem responde | Acesso |
-|---|---|---|
-| Percepção do Turismo | Cidadão olimpense | Link público, sem login |
-| Taxa de Ocupação e Fluxo de Turistas | Dono de hospedagem | Link público, sem login |
-| Demanda Turística | Turista (via pesquisador de campo) | Pesquisador faz login |
-| Diária Média | Servidor da Secretaria | Login + interface dedicada |
+| Pesquisa | Quem responde | Acesso | `tipo` |
+|---|---|---|---|
+| Percepção do Turismo | Cidadão olimpense | Link público, sem login | `publica` |
+| Taxa de Ocupação e Fluxo de Turistas | Dono de hospedagem | Link público, sem login | `publica` |
+| Demanda Turística | Turista (via pesquisador de campo) | Pesquisador faz login | `campo` |
+| Diária Média | Servidor da Secretaria | Login + interface dedicada | — (não usa pesquisa/edição) |
 
 ---
 
@@ -154,6 +159,7 @@ foram aplicadas de forma incremental e idempotente. Os scripts ficam em `schema/
 |---|---|
 | `001_add_campo_columns.sql` | Adiciona `opcoes`/`obrigatorio`/`ordem` a `campo`; colunas de `hospedagem`; `preco_fds`/`preco_semana` a `diaria_media`; novos valores do ENUM `tipo_campo` |
 | `002_add_resposta_usuario.sql` | Adiciona `resposta.usuario_id` (FK → usuario, `ON DELETE SET NULL`) |
+| `003_add_pesquisa_tipo.sql` | Adiciona `pesquisa.tipo` (`VARCHAR(20)`, default `publica`) — distingue pesquisa pública da de campo |
 
 > `schema/schema.sql` reflete o estado final desejado (para recriar o banco do zero).
 > As migrações refletem o caminho incremental aplicado no banco que já estava em uso.
