@@ -136,6 +136,15 @@ O frontend estará disponível em `http://localhost:5173`.
 | GET | `/pesquisador/edicoes` | Edições abertas de pesquisas tipo `campo` | pesquisador_campo |
 | GET | `/pesquisador/edicoes/{id}` | Formulário de uma edição de campo | pesquisador_campo |
 | POST | `/pesquisador/edicoes/{id}/respostas` | Coleta de campo (vincula `usuario_id`) | pesquisador_campo |
+| GET | `/hospedagens` | Lista hospedagens (Diária Média) | servidor |
+| POST | `/hospedagens` | Cadastra hospedagem | servidor |
+| GET | `/hospedagens/{cnpj}` | Detalha hospedagem (`cnpj` é `:path`) | servidor |
+| PUT | `/hospedagens/{cnpj}` | Edita hospedagem | servidor |
+| DELETE | `/hospedagens/{cnpj}` | Exclui hospedagem (cascata nas diárias) | servidor |
+| GET | `/diarias/pendentes` | Hospedagens sem diária na data (default hoje) | servidor |
+| GET | `/diarias` | Lista registros (filtro `hospedagem_cnpj`/`data`) | servidor |
+| POST | `/diarias` | Registra diária (1 por hospedagem+data) | servidor |
+| DELETE | `/diarias/{id}` | Remove um registro de diária | servidor |
 
 > Referência precisa das rotas atuais (request/response) em `backend/docs/api.md`.
 > Sequência de integração incremental em `TASKS.md` (raiz).
@@ -166,7 +175,7 @@ Raiz: `App.tsx` → `AuthProvider` > `AppStoreProvider` > `RouterProvider`. Guar
 | `/admin` | `DashboardPage` | servidor | ⚠️ Mock (KPIs/gráficos do `mockData` — Task 7) |
 | `/admin/adicionar-pesquisa` | `AdicionarPesquisaPage` | servidor | ✅ Integrado — CRUD de pesquisas, **seletor de tipo publica/campo**, lançar edição, links públicos |
 | `/admin/consultar` | `ConsultarPage` | servidor | ✅ Integrado — tabela dinâmica, busca, paginação, delete, CSV, novo registro, **coluna "Coletado por"** |
-| `/admin/diaria-media` | `DiariaMediaPage` | servidor | ⚠️ Parcial mock (Task 5) |
+| `/admin/diaria-media` | `DiariaMediaPage` | servidor | ✅ Integrado — abas Pendentes/Hospedagens/Registros; CRUD de hospedagem + registro de diária (REQ 6) |
 | `/pesquisador` | `ResearcherDashboard` | pesquisador_campo | ⚠️ Mock (stats hardcoded; nome vem do `AuthContext` via layout) |
 | `/pesquisador/responder` | `ResponderPage` | pesquisador_campo | ✅ Integrado — lista edições de campo abertas, carrega form, envia coleta vinculada ao usuário logado |
 | `/pesquisa/:id` | `PublicSurveyPage` | — | ✅ Integrado — form público; recusa edições de campo |
@@ -185,12 +194,13 @@ Para isso, `Campo.opcoes` usa `ARRAY(String).with_variant(JSON, "sqlite")` — m
 cd backend
 source venv/bin/activate
 pip install -r requirements-dev.txt   # pytest + httpx (deps só de teste)
-pytest tests/                          # 28 testes (unit + integração)
+pytest tests/                          # 45 testes (unit + integração)
 ```
 
 - `tests/conftest.py` — engine SQLite (StaticPool), override de `get_db`, fixtures `client`, `servidor`, `pesquisador`.
 - `tests/test_unit.py` — validações de schema (`tipo`), helpers de status/tipo de edição, dependências de acesso, token JWT.
 - `tests/test_pesquisas_campo.py` — integração: criar pesquisa de campo, authz (`pesquisador_campo` vs `servidor` vs anônimo), resposta vinculada ao pesquisador + edição, bloqueio do fluxo público para campo, nome do coletor na consulta.
+- `tests/test_diaria_media.py` — integração REQ 6: CRUD de hospedagem (authz, CNPJ duplicado, estrelas inválidas, cascata), registro de diária (unicidade hospedagem+data, preço negativo, filtros) e pendentes por data.
 
 ## Regras do time
 

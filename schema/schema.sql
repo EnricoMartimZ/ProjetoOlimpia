@@ -122,6 +122,7 @@ CREATE TABLE hospedagem (
     categoria       VARCHAR(50) NOT NULL DEFAULT 'Hotel',  -- Hotel, Pousada, Resort, Airbnb, etc.
     estrelas        SMALLINT NOT NULL DEFAULT 0,
     quartos         INTEGER NOT NULL DEFAULT 0,
+    url_booking     TEXT,   -- link fixo da hospedagem no Booking (consulta posterior)
     foto_url        TEXT,
     criado_em       TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -129,22 +130,17 @@ CREATE TABLE hospedagem (
 -- =====================================================================
 -- DIÁRIA MÉDIA
 -- Registro contínuo de preço por hospedagem (inserido pelo servidor).
+-- Guarda só o que varia por coleta: a data e o preço.
 -- Um registro por hospedagem por data.
--- preco_fds  = diária fim de semana
--- preco_semana = diária dia de semana
 -- =====================================================================
 CREATE TABLE diaria_media (
     id               SERIAL PRIMARY KEY,
     hospedagem_cnpj  VARCHAR(18) NOT NULL REFERENCES hospedagem(cnpj) ON DELETE CASCADE,
     data             DATE NOT NULL,
-    preco_fds        NUMERIC(10, 2) NOT NULL,
-    preco_semana     NUMERIC(10, 2) NOT NULL,
-    fonte_booking    TEXT,
-    observacoes      TEXT,
+    preco            NUMERIC(10, 2) NOT NULL,
     registrado_em    TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     CONSTRAINT uk_diaria_hospedagem_data UNIQUE (hospedagem_cnpj, data),
-    CONSTRAINT ck_preco_fds_positivo CHECK (preco_fds >= 0),
-    CONSTRAINT ck_preco_semana_positivo CHECK (preco_semana >= 0)
+    CONSTRAINT ck_preco_positivo CHECK (preco >= 0)
 );
 
 -- =====================================================================

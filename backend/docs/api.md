@@ -195,3 +195,58 @@ Erros: `404` se a edição não existe **ou** não é de uma pesquisa `campo`.
 Registra a coleta, **sempre vinculada ao pesquisador autenticado** (`usuario_id`) e à edição.
 Request (`RespostaCreate`) e Response `201` (`RespostaOut`) iguais ao envio público.
 Erros: `404` (não é edição de campo) · `409` edição fechada · `422` campo inválido/duplicado/vazio.
+
+---
+
+## 8. Diária Média (REQ 6)
+
+Interface dedicada do servidor da Secretaria. **Todas exigem role `servidor`** (`401` sem token · `403` se role ≠ servidor).
+
+`hospedagem` guarda os dados fixos (incl. `url_booking`, o link fixo do Booking); `diaria_media` guarda só o que varia por coleta (`data` + `preco`).
+
+> Atenção: o `cnpj` é a chave e pode conter `/` (ex.: `12.345.678/0001-90`). As rotas usam `{cnpj:path}`, então o valor vai **cru** na URL (sem `encodeURIComponent`).
+
+**Hospedagem** (saída — `HospedagemOut`):
+```json
+{ "cnpj": "12.345.678/0001-90", "nome_fantasia": "Hotel Termas", "local": "Olímpia/SP",
+  "categoria": "Resort", "estrelas": 5, "quartos": 120,
+  "url_booking": "https://booking.com/...", "foto_url": "https://...",
+  "criado_em": "2026-06-02T12:00:00Z" }
+```
+
+### `GET /hospedagens` · `servidor`
+Lista todas as hospedagens (ordenadas por nome). Response `200`: `[HospedagemOut]`.
+
+### `POST /hospedagens` · `servidor`
+Cadastra uma hospedagem. Request (`HospedagemCreate`): `cnpj`, `nome_fantasia`, `local`, `categoria` (default `Hotel`), `estrelas` (0–5), `quartos` (≥0), `url_booking?`, `foto_url?`.
+Response `201` (`HospedagemOut`). Erros: `409` CNPJ já existe · `422` validação (estrelas fora de 0–5, campos vazios).
+
+### `GET /hospedagens/{cnpj}` · `servidor`
+Detalha uma hospedagem. Response `200` (`HospedagemOut`). Erro: `404`.
+
+### `PUT /hospedagens/{cnpj}` · `servidor`
+Atualiza (parcial) os dados de uma hospedagem; o CNPJ não muda. Request (`HospedagemUpdate`, todos os campos opcionais).
+Response `200` (`HospedagemOut`). Erro: `404`.
+
+### `DELETE /hospedagens/{cnpj}` · `servidor`
+Remove a hospedagem e, em cascata, todos os seus registros de diária. Response `204`. Erro: `404`.
+
+**Registro de diária** (saída — `DiariaMediaOut`): inclui `nome_fantasia` (join) para a tabela.
+```json
+{ "id": 1, "hospedagem_cnpj": "12.345.678/0001-90", "nome_fantasia": "Hotel Termas",
+  "data": "2026-06-01", "preco": 450.50, "registrado_em": "2026-06-02T12:00:00Z" }
+```
+
+### `GET /diarias/pendentes?data=YYYY-MM-DD` · `servidor`
+Hospedagens que **ainda não** têm diária registrada na data (default: hoje). Response `200`: `[HospedagemPendente]`
+(`cnpj`, `nome_fantasia`, `categoria`, `estrelas`, `foto_url`, `url_booking`).
+
+### `GET /diarias?hospedagem_cnpj=&data=` · `servidor`
+Lista os registros (mais recentes primeiro). Filtros opcionais por hospedagem e por data. Response `200`: `[DiariaMediaOut]`.
+
+### `POST /diarias` · `servidor`
+Registra a diária. Request (`DiariaMediaCreate`): `hospedagem_cnpj`, `data` (ISO), `preco` (≥0).
+Response `201` (`DiariaMediaOut`). Erros: `404` hospedagem inexistente · `409` já existe registro para essa hospedagem+data · `422` preço negativo.
+
+### `DELETE /diarias/{id}` · `servidor`
+Remove um registro específico. Response `204`. Erro: `404`.

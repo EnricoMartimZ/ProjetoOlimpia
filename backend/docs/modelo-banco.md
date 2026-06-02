@@ -101,26 +101,25 @@ Hotel, pousada ou resort cadastrado para a pesquisa de Diária Média.
 | nome_fantasia | VARCHAR(150) | — |
 | local | VARCHAR(200) | — |
 | categoria | VARCHAR(50) | Hotel, Pousada, Resort, Airbnb… (default `Hotel`) |
-| estrelas | SMALLINT | Classificação (default `0`) |
+| estrelas | SMALLINT | Classificação 0–5 (default `0`) |
 | quartos | INTEGER | Nº de quartos/unidades (default `0`) |
+| url_booking | TEXT | Link **fixo** da hospedagem no Booking, para consulta posterior (nullable) |
 | foto_url | TEXT | Imagem exibida no card (nullable) |
 | criado_em | TIMESTAMPTZ | Default `NOW()` |
 
 ### Diária Média
 Registro contínuo de preço por hospedagem, inserido manualmente pelo servidor consultando o Booking.
+Guarda só o que varia por coleta (data + preço); os dados fixos ficam em `hospedagem`.
 
 | Atributo | Tipo | Detalhe |
 |---|---|---|
 | id | SERIAL | Chave primária |
-| hospedagem_cnpj | VARCHAR(18) | FK → hospedagem |
+| hospedagem_cnpj | VARCHAR(18) | FK → hospedagem (`ON DELETE CASCADE`) |
 | data | DATE | Data de referência do preço |
-| preco_fds | NUMERIC(10,2) | Diária de fim de semana (não negativo) |
-| preco_semana | NUMERIC(10,2) | Diária de dia de semana (não negativo) |
-| fonte_booking | TEXT | URL/código da fonte no Booking (nullable) |
-| observacoes | TEXT | Anotações livres (nullable) |
+| preco | NUMERIC(10,2) | Diária consultada no Booking (não negativo) |
 | registrado_em | TIMESTAMPTZ | Default `NOW()` |
 
-**Restrição:** um registro por hospedagem por data (`uk_diaria_hospedagem_data`).
+**Restrição:** um registro por hospedagem por data (`uk_diaria_hospedagem_data`); `preco >= 0` (`ck_preco_positivo`).
 **Relacionamento:** uma Hospedagem contém N registros de Diária Média (1:N).
 
 ---
@@ -160,6 +159,7 @@ foram aplicadas de forma incremental e idempotente. Os scripts ficam em `schema/
 | `001_add_campo_columns.sql` | Adiciona `opcoes`/`obrigatorio`/`ordem` a `campo`; colunas de `hospedagem`; `preco_fds`/`preco_semana` a `diaria_media`; novos valores do ENUM `tipo_campo` |
 | `002_add_resposta_usuario.sql` | Adiciona `resposta.usuario_id` (FK → usuario, `ON DELETE SET NULL`) |
 | `003_add_pesquisa_tipo.sql` | Adiciona `pesquisa.tipo` (`VARCHAR(20)`, default `publica`) — distingue pesquisa pública da de campo |
+| `004_restructure_diaria_media.sql` | Adiciona `hospedagem.url_booking`; colapsa `diaria_media` para um único `preco` (remove `preco_fds`/`preco_semana`/`fonte_booking`/`observacoes`) — REQ 6 |
 
 > `schema/schema.sql` reflete o estado final desejado (para recriar o banco do zero).
 > As migrações refletem o caminho incremental aplicado no banco que já estava em uso.
