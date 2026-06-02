@@ -292,6 +292,111 @@ export async function getEdicoesCampo(): Promise<EdicaoAPI[]> {
   return request<EdicaoAPI[]>("/pesquisador/edicoes");
 }
 
+// ---------------------------------------------------------------------------
+// Diária Média — Hospedagens + registros de preço (rotas de servidor)
+// ---------------------------------------------------------------------------
+
+export interface HospedagemAPI {
+  cnpj: string;
+  nome_fantasia: string;
+  local: string;
+  categoria: string;
+  estrelas: number;
+  quartos: number;
+  url_booking: string | null;
+  foto_url: string | null;
+  criado_em: string;
+}
+
+export interface HospedagemCreateInput {
+  cnpj: string;
+  nome_fantasia: string;
+  local: string;
+  categoria: string;
+  estrelas: number;
+  quartos: number;
+  url_booking?: string | null;
+  foto_url?: string | null;
+}
+
+/** Hospedagem que ainda não teve diária registrada na data de referência. */
+export interface HospedagemPendenteAPI {
+  cnpj: string;
+  nome_fantasia: string;
+  categoria: string;
+  estrelas: number;
+  foto_url: string | null;
+  url_booking: string | null;
+}
+
+export interface DiariaAPI {
+  id: number;
+  hospedagem_cnpj: string;
+  nome_fantasia: string;
+  data: string; // ISO yyyy-mm-dd
+  preco: number;
+  registrado_em: string;
+}
+
+export interface DiariaCreateInput {
+  hospedagem_cnpj: string;
+  data: string; // ISO yyyy-mm-dd
+  preco: number;
+}
+
+export async function getHospedagens(): Promise<HospedagemAPI[]> {
+  return request<HospedagemAPI[]>("/hospedagens");
+}
+
+export async function createHospedagem(dados: HospedagemCreateInput): Promise<HospedagemAPI> {
+  return request<HospedagemAPI>("/hospedagens", {
+    method: "POST",
+    body: JSON.stringify(dados),
+  });
+}
+
+export async function updateHospedagem(
+  cnpj: string,
+  dados: Partial<Omit<HospedagemCreateInput, "cnpj">>,
+): Promise<HospedagemAPI> {
+  // cnpj pode conter "/" (formato XX.XXX.XXX/0001-XX); a rota usa {cnpj:path}, então
+  // mandamos o valor cru (sem encodeURIComponent, que viraria %2F e não casaria).
+  return request<HospedagemAPI>(`/hospedagens/${cnpj}`, {
+    method: "PUT",
+    body: JSON.stringify(dados),
+  });
+}
+
+export async function deleteHospedagem(cnpj: string): Promise<void> {
+  return request<void>(`/hospedagens/${cnpj}`, { method: "DELETE" });
+}
+
+export async function getPendentes(data?: string): Promise<HospedagemPendenteAPI[]> {
+  const suffix = data ? `?data=${data}` : "";
+  return request<HospedagemPendenteAPI[]>(`/diarias/pendentes${suffix}`);
+}
+
+export async function getDiarias(
+  params: { hospedagem_cnpj?: string; data?: string } = {},
+): Promise<DiariaAPI[]> {
+  const qs = new URLSearchParams();
+  if (params.hospedagem_cnpj) qs.set("hospedagem_cnpj", params.hospedagem_cnpj);
+  if (params.data) qs.set("data", params.data);
+  const suffix = qs.toString() ? `?${qs}` : "";
+  return request<DiariaAPI[]>(`/diarias${suffix}`);
+}
+
+export async function createDiaria(dados: DiariaCreateInput): Promise<DiariaAPI> {
+  return request<DiariaAPI>("/diarias", {
+    method: "POST",
+    body: JSON.stringify(dados),
+  });
+}
+
+export async function deleteDiaria(id: number): Promise<void> {
+  return request<void>(`/diarias/${id}`, { method: "DELETE" });
+}
+
 /** Carrega o formulário de uma edição de campo (campos fixos + extras). */
 export async function getEdicaoCampoForm(edicaoId: number): Promise<PublicEdicaoAPI> {
   return request<PublicEdicaoAPI>(`/pesquisador/edicoes/${edicaoId}`);

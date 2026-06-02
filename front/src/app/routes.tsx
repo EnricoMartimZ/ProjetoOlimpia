@@ -3,7 +3,7 @@ import { LoginPage } from "./pages/LoginPage";
 import { CadastroPage } from "./pages/CadastroPage";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { DashboardPage } from "./pages/admin/DashboardPage";
-import { DiariaMediaPage } from "./pages/admin/DiariaMediaPage";
+import { DiariaMediaPage } from "./pages/admin/diaria-media/DiariaMediaPage";
 import { ConsultarPage } from "./pages/admin/ConsultarPage";
 import { AdicionarPesquisaPage } from "./pages/admin/AdicionarPesquisaPage";
 import { ResearcherLayout } from "./pages/researcher/ResearcherLayout";
