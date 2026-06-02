@@ -24,8 +24,9 @@ export function LoginPage() {
     setLoading(true);
     try {
       const authUser = await login(email, senha);
+      const roles = authUser.role.split(",");
       const roleEsperado = activeTab === "adm" ? "servidor" : "pesquisador_campo";
-      if (authUser.role !== roleEsperado) {
+      if (!roles.includes(roleEsperado)) {
         logout();
         setErro(
           activeTab === "adm"
@@ -34,7 +35,7 @@ export function LoginPage() {
         );
         return;
       }
-      navigate(authUser.role === "servidor" ? "/admin" : "/pesquisador");
+      navigate(activeTab === "adm" ? "/admin" : "/pesquisador");
     } catch (err) {
       setErro(err instanceof Error ? err.message : "Erro ao fazer login.");
     } finally {
@@ -198,15 +199,6 @@ export function LoginPage() {
                 style={{ backgroundColor: "#1B1D40", fontFamily: "Inter, sans-serif" }}
               >
                 {loading ? "Entrando..." : "Entrar"}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigate("/cadastro")}
-                className="text-sm text-center underline"
-                style={{ color: "#1B1D40", opacity: 0.7 }}
-              >
-                Não tem conta? Cadastrar-se
               </button>
 
               {/* Public access links */}

@@ -73,7 +73,7 @@ def client():
 def criar_usuario(client, nome, email, senha, role):
     resp = client.post(
         "/usuarios",
-        json={"nome": nome, "email": email, "senha": senha, "role": role},
+        json={"nome": nome, "email": email, "senha": senha, "roles": [role]},
     )
     assert resp.status_code == 201, resp.text
     return resp.json()

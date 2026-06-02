@@ -55,17 +55,43 @@ export async function login(email: string, senha: string): Promise<LoginResponse
 // Usuários
 // ---------------------------------------------------------------------------
 
+export type RoleType = "servidor" | "pesquisador_campo";
+
 export interface CadastroInput {
   nome: string;
   email: string;
   senha: string;
-  role: "servidor" | "pesquisador_campo";
+  roles: RoleType[];
 }
 
-export async function cadastrar(dados: CadastroInput): Promise<void> {
-  return request<void>("/usuarios", {
+export interface UsuarioListItem {
+  id: number;
+  nome: string;
+  email: string;
+  role: string;
+  roles: RoleType[];
+  criado_em: string;
+}
+
+export async function cadastrar(dados: CadastroInput): Promise<UsuarioListItem> {
+  return request<UsuarioListItem>("/usuarios", {
     method: "POST",
     body: JSON.stringify(dados),
+  });
+}
+
+export async function getUsuarios(): Promise<UsuarioListItem[]> {
+  return request<UsuarioListItem[]>("/usuarios");
+}
+
+export async function deleteUsuario(id: number): Promise<void> {
+  return request<void>(`/usuarios/${id}`, { method: "DELETE" });
+}
+
+export async function updateUsuarioRoles(id: number, roles: RoleType[]): Promise<UsuarioListItem> {
+  return request<UsuarioListItem>(`/usuarios/${id}/roles`, {
+    method: "PUT",
+    body: JSON.stringify({ roles }),
   });
 }
 

@@ -9,5 +9,5 @@ class Usuario(Base):
     nome = Column(String, nullable=False)
     email = Column(String, unique=True, nullable=False, index=True)
     senha_hash = Column(String, nullable=False)
-    role = Column(String, nullable=False)  # "servidor" | "pesquisador_campo"
+    role = Column(String, nullable=False)  # "servidor" | "pesquisador_campo" | "servidor,pesquisador_campo"
     criado_em = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
