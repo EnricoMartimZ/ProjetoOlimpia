@@ -37,7 +37,7 @@ export const FIELD_TYPES: FieldTypeOption[] = [
 
 export const STRIPE_COLORS = [
   "#C8102E",
-  "#F5C100",
+  "#F5C944",
   "#00538C",
   "#009688",
   "#2E7D32",

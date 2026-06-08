@@ -11,6 +11,7 @@ import { ResearcherDashboard } from "./pages/researcher/ResearcherDashboard";
 import { ResponderPage } from "./pages/researcher/ResponderPage";
 import { PublicSurveyPage } from "./pages/PublicSurveyPage";
 import { PublicStatsPage } from "./pages/PublicStatsPage";
+import { PublicSurveysListPage } from "./pages/PublicSurveysListPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { useAuth } from "./context/AuthContext";
 
@@ -58,6 +59,10 @@ export const router = createBrowserRouter([
   {
     path: "/pesquisa/:id",
     Component: PublicSurveyPage,
+  },
+  {
+    path: "/pesquisas-publicas",
+    Component: PublicSurveysListPage,
   },
   {
     path: "/dados-publicos",

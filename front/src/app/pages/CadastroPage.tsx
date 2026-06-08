@@ -44,7 +44,7 @@ export function CadastroPage() {
         <div className="w-full max-w-sm">
           <div
             className="rounded-2xl shadow-xl overflow-hidden"
-            style={{ backgroundColor: "#F5C100" }}
+            style={{ backgroundColor: "#F5C944" }}
           >
             <div className="px-8 pt-6 pb-4">
               <h1
@@ -52,7 +52,7 @@ export function CadastroPage() {
                   fontFamily: "Inter, sans-serif",
                   fontWeight: 700,
                   fontSize: 28,
-                  color: "#1B1D40",
+                  color: "#1D2E36",
                   textAlign: "center",
                   marginBottom: 4,
                 }}
@@ -63,7 +63,7 @@ export function CadastroPage() {
                 style={{
                   fontFamily: "Inter, sans-serif",
                   fontSize: 13,
-                  color: "#1B1D40",
+                  color: "#1D2E36",
                   textAlign: "center",
                   opacity: 0.7,
                   marginBottom: 16,
@@ -77,7 +77,7 @@ export function CadastroPage() {
               {/* Nome */}
               <div>
                 <label
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1B1D40", display: "block", marginBottom: 4 }}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1D2E36", display: "block", marginBottom: 4 }}
                 >
                   nome
                 </label>
@@ -90,7 +90,7 @@ export function CadastroPage() {
                     placeholder="Seu nome completo"
                     required
                     className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
-                    style={{ backgroundColor: "white", border: "1px solid rgba(0,0,0,0.1)", color: "#1B1D40", fontFamily: "Inter, sans-serif" }}
+                    style={{ backgroundColor: "white", border: "1px solid rgba(0,0,0,0.1)", color: "#1D2E36", fontFamily: "Inter, sans-serif" }}
                   />
                 </div>
               </div>
@@ -98,7 +98,7 @@ export function CadastroPage() {
               {/* E-mail */}
               <div>
                 <label
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1B1D40", display: "block", marginBottom: 4 }}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1D2E36", display: "block", marginBottom: 4 }}
                 >
                   e-mail
                 </label>
@@ -111,7 +111,7 @@ export function CadastroPage() {
                     placeholder="seu@email.com"
                     required
                     className="w-full pl-9 pr-4 py-2.5 rounded-lg text-sm outline-none"
-                    style={{ backgroundColor: "white", border: "1px solid rgba(0,0,0,0.1)", color: "#1B1D40", fontFamily: "Inter, sans-serif" }}
+                    style={{ backgroundColor: "white", border: "1px solid rgba(0,0,0,0.1)", color: "#1D2E36", fontFamily: "Inter, sans-serif" }}
                   />
                 </div>
               </div>
@@ -119,7 +119,7 @@ export function CadastroPage() {
               {/* Senha */}
               <div>
                 <label
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1B1D40", display: "block", marginBottom: 4 }}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1D2E36", display: "block", marginBottom: 4 }}
                 >
                   senha
                 </label>
@@ -132,7 +132,7 @@ export function CadastroPage() {
                     placeholder="Crie uma senha"
                     required
                     className="w-full pl-9 pr-10 py-2.5 rounded-lg text-sm outline-none"
-                    style={{ backgroundColor: "white", border: "1px solid rgba(0,0,0,0.1)", color: "#1B1D40", fontFamily: "Inter, sans-serif" }}
+                    style={{ backgroundColor: "white", border: "1px solid rgba(0,0,0,0.1)", color: "#1D2E36", fontFamily: "Inter, sans-serif" }}
                   />
                   <button
                     type="button"
@@ -147,7 +147,7 @@ export function CadastroPage() {
               {/* Perfil */}
               <div>
                 <label
-                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1B1D40", display: "block", marginBottom: 4 }}
+                  style={{ fontFamily: "Inter, sans-serif", fontSize: 13, fontWeight: 600, color: "#1D2E36", display: "block", marginBottom: 4 }}
                 >
                   perfil
                 </label>
@@ -157,8 +157,8 @@ export function CadastroPage() {
                     onClick={() => setRole("servidor")}
                     className="flex-1 py-2 text-sm font-semibold transition-colors"
                     style={{
-                      backgroundColor: role === "servidor" ? "#1B1D40" : "transparent",
-                      color: role === "servidor" ? "white" : "#1B1D40",
+                      backgroundColor: role === "servidor" ? "#1D2E36" : "transparent",
+                      color: role === "servidor" ? "white" : "#1D2E36",
                     }}
                   >
                     ADM
@@ -168,8 +168,8 @@ export function CadastroPage() {
                     onClick={() => setRole("pesquisador_campo")}
                     className="flex-1 py-2 text-sm font-semibold transition-colors"
                     style={{
-                      backgroundColor: role === "pesquisador_campo" ? "#1B1D40" : "transparent",
-                      color: role === "pesquisador_campo" ? "white" : "#1B1D40",
+                      backgroundColor: role === "pesquisador_campo" ? "#1D2E36" : "transparent",
+                      color: role === "pesquisador_campo" ? "white" : "#1D2E36",
                     }}
                   >
                     Pesquisador
@@ -192,7 +192,7 @@ export function CadastroPage() {
                 type="submit"
                 disabled={loading}
                 className="w-full py-3 rounded-xl text-white font-bold text-base mt-2 transition-opacity hover:opacity-90 active:opacity-80 disabled:opacity-60"
-                style={{ backgroundColor: "#1B1D40", fontFamily: "Inter, sans-serif" }}
+                style={{ backgroundColor: "#1D2E36", fontFamily: "Inter, sans-serif" }}
               >
                 {loading ? "Criando conta..." : "Criar conta"}
               </button>
@@ -202,7 +202,7 @@ export function CadastroPage() {
                 type="button"
                 onClick={() => navigate("/")}
                 className="text-sm text-center underline"
-                style={{ color: "#1B1D40", opacity: 0.7 }}
+                style={{ color: "#1D2E36", opacity: 0.7 }}
               >
                 Já tenho conta — fazer login
               </button>

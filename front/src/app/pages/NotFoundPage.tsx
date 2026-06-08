@@ -12,8 +12,8 @@ export function NotFoundPage() {
       <div className="flex-1 flex flex-col items-center justify-center gap-6 p-6">
         <OlimpiaLogo size="md" variant="full" />
         <div className="text-center">
-          <p style={{ fontSize: 72, fontWeight: 900, color: "#F5C100", lineHeight: 1 }}>404</p>
-          <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40", marginTop: 8 }}>
+          <p style={{ fontSize: 72, fontWeight: 900, color: "#F5C944", lineHeight: 1 }}>404</p>
+          <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36", marginTop: 8 }}>
             Página não encontrada
           </h1>
           <p style={{ fontSize: 14, color: "#6B7280", marginTop: 4 }}>
@@ -24,7 +24,7 @@ export function NotFoundPage() {
           <button
             onClick={() => navigate("/")}
             className="px-6 py-3 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: "#1B1D40", color: "white" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             Ir para o login
           </button>

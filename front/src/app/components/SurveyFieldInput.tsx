@@ -11,7 +11,7 @@ interface SurveyFieldInputProps {
 const INPUT_STYLE = {
   border: "2px solid #E5E7EB",
   backgroundColor: "#F9F9F9",
-  color: "#1B1D40",
+  color: "#1D2E36",
 };
 
 export function SurveyFieldInput({
@@ -74,9 +74,9 @@ export function SurveyFieldInput({
               onClick={() => onChange(op)}
               className="px-4 py-3 rounded-xl text-sm font-semibold text-left transition-all"
               style={{
-                backgroundColor: value === op ? "#1B1D40" : "#F9F9F9",
+                backgroundColor: value === op ? "#1D2E36" : "#F9F9F9",
                 color: value === op ? "white" : "#374151",
-                border: `2px solid ${value === op ? "#1B1D40" : "#E5E7EB"}`,
+                border: `2px solid ${value === op ? "#1D2E36" : "#E5E7EB"}`,
               }}
             >
               {op}
@@ -93,16 +93,16 @@ export function SurveyFieldInput({
             onClick={() => onChange(op)}
             className="w-full px-4 py-3.5 rounded-xl text-sm font-semibold text-left transition-all flex items-center gap-3"
             style={{
-              backgroundColor: value === op ? "#F5C100" : "#F9F9F9",
-              color: value === op ? "#1B1D40" : "#374151",
-              border: `2px solid ${value === op ? "#F5C100" : "#E5E7EB"}`,
+              backgroundColor: value === op ? "#F5C944" : "#F9F9F9",
+              color: value === op ? "#1D2E36" : "#374151",
+              border: `2px solid ${value === op ? "#F5C944" : "#E5E7EB"}`,
             }}
           >
             <span
               className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
               style={{
-                borderColor: value === op ? "#1B1D40" : "#D1D5DB",
-                backgroundColor: value === op ? "#1B1D40" : "transparent",
+                borderColor: value === op ? "#1D2E36" : "#D1D5DB",
+                backgroundColor: value === op ? "#1D2E36" : "transparent",
               }}
             >
               {value === op && <span className="w-2 h-2 rounded-full bg-white" />}
@@ -130,9 +130,9 @@ export function SurveyFieldInput({
               onClick={() => onChange(v)}
               className="flex-1 py-4 rounded-xl font-bold text-lg transition-all"
               style={{
-                backgroundColor: value === v ? "#F5C100" : "#F9F9F9",
-                color: value === v ? "#1B1D40" : "#374151",
-                border: `2px solid ${value === v ? "#F5C100" : "#E5E7EB"}`,
+                backgroundColor: value === v ? "#F5C944" : "#F9F9F9",
+                color: value === v ? "#1D2E36" : "#374151",
+                border: `2px solid ${value === v ? "#F5C944" : "#E5E7EB"}`,
               }}
             >
               {v}

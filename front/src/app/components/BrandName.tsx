@@ -1,12 +1,12 @@
 const LETTERS = ["O", "L", "Í", "M", "P", "I", "A"];
 const LETTER_COLORS = [
   "#C8102E",
-  "#1B1D40",
+  "#1D2E36",
   "#009688",
   "#00538C",
   "#2E7D32",
   "#C8102E",
-  "#1B1D40",
+  "#1D2E36",
 ];
 
 interface BrandNameProps {
@@ -21,7 +21,7 @@ export function BrandName({ size = 16 }: BrandNameProps) {
         fontWeight: 800,
         fontSize: size,
         letterSpacing: "-0.01em",
-        color: "#1B1D40",
+        color: "#1D2E36",
       }}
     >
       {LETTERS.map((letter, i) => (

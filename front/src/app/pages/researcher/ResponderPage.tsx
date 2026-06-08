@@ -143,7 +143,7 @@ export function ResponderPage() {
         <div className="p-5 rounded-full" style={{ backgroundColor: "#E8F5E9" }}>
           <CheckCircle size={48} color="#2E7D32" />
         </div>
-        <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40", textAlign: "center" }}>
+        <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36", textAlign: "center" }}>
           Coleta registrada!
         </h2>
         <p style={{ fontSize: 14, color: "#6B7280", textAlign: "center", maxWidth: 380 }}>
@@ -155,7 +155,7 @@ export function ResponderPage() {
           {form.campos.map((c) => (
             <div key={c.id} className="flex justify-between py-1.5 gap-3" style={{ borderBottom: "1px solid #F0EDE8" }}>
               <span style={{ fontSize: 12, color: "#6B7280" }}>{c.texto_pergunta}</span>
-              <span style={{ fontSize: 12, fontWeight: 600, color: "#1B1D40", textAlign: "right" }}>
+              <span style={{ fontSize: 12, fontWeight: 600, color: "#1D2E36", textAlign: "right" }}>
                 {answers[c.id] ?? "—"}
               </span>
             </div>
@@ -164,7 +164,7 @@ export function ResponderPage() {
         <button
           onClick={reset}
           className="px-6 py-3 rounded-xl text-sm font-semibold"
-          style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+          style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
         >
           Registrar nova resposta
         </button>
@@ -175,7 +175,7 @@ export function ResponderPage() {
   return (
     <div className="p-6" style={{ fontFamily: "Inter, sans-serif" }}>
       <div className="mb-6">
-        <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>Responder Pesquisa de Campo</h1>
+        <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>Responder Pesquisa de Campo</h1>
         <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
           {user?.nome ? `${user.nome} — ` : ""}registre as respostas coletadas presencialmente com o turista
         </p>
@@ -185,7 +185,7 @@ export function ResponderPage() {
         {/* Painel de seleção */}
         <div className="lg:col-span-1 space-y-4">
           <div className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 12 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 12 }}>
               Pesquisa de campo
             </h3>
 
@@ -219,11 +219,11 @@ export function ResponderPage() {
                     onClick={() => setSelectedEdicaoId(e.id)}
                     className="w-full text-left rounded-lg p-3 transition-all"
                     style={{
-                      border: `2px solid ${active ? "#F5C100" : "#E5E7EB"}`,
+                      border: `2px solid ${active ? "#F5C944" : "#E5E7EB"}`,
                       backgroundColor: active ? "#FFFBEB" : "#F9F9F9",
                     }}
                   >
-                    <p style={{ fontSize: 13, fontWeight: 700, color: "#1B1D40" }}>{e.pesquisa_nome}</p>
+                    <p style={{ fontSize: 13, fontWeight: 700, color: "#1D2E36" }}>{e.pesquisa_nome}</p>
                     <p style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>
                       {e.numero_edicao}ª edição · {e.total_respostas} resposta{e.total_respostas !== 1 ? "s" : ""}
                     </p>
@@ -236,7 +236,7 @@ export function ResponderPage() {
           {/* Progresso */}
           {form && campos.length > 0 && (
             <div className="rounded-xl p-4 shadow-sm" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
-              <h3 style={{ fontWeight: 700, fontSize: 13, color: "#1B1D40", marginBottom: 10 }}>Progresso</h3>
+              <h3 style={{ fontWeight: 700, fontSize: 13, color: "#1D2E36", marginBottom: 10 }}>Progresso</h3>
               <div className="space-y-1.5">
                 {campos.map((f, i) => (
                   <div
@@ -248,13 +248,13 @@ export function ResponderPage() {
                     <div
                       className="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
                       style={{
-                        backgroundColor: answers[f.id] !== undefined ? "#2E7D32" : step === i ? "#F5C100" : "#E5E7EB",
+                        backgroundColor: answers[f.id] !== undefined ? "#2E7D32" : step === i ? "#F5C944" : "#E5E7EB",
                         color: answers[f.id] !== undefined || step === i ? "white" : "#9CA3AF",
                       }}
                     >
                       {answers[f.id] !== undefined ? "✓" : i + 1}
                     </div>
-                    <span style={{ fontSize: 11, color: step === i ? "#1B1D40" : "#6B7280", fontWeight: step === i ? 600 : 400 }}>
+                    <span style={{ fontSize: 11, color: step === i ? "#1D2E36" : "#6B7280", fontWeight: step === i ? 600 : 400 }}>
                       {f.label.length > 28 ? f.label.slice(0, 28) + "…" : f.label}
                     </span>
                   </div>
@@ -269,9 +269,9 @@ export function ResponderPage() {
           {!selectedEdicao ? (
             <div className="rounded-xl shadow-sm p-10 flex flex-col items-center justify-center gap-3" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
               <div className="p-4 rounded-full" style={{ backgroundColor: "#FFF3CD" }}>
-                <ClipboardList size={28} color="#F5C100" />
+                <ClipboardList size={28} color="#F5C944" />
               </div>
-              <p style={{ fontWeight: 600, fontSize: 15, color: "#1B1D40" }}>Selecione uma pesquisa de campo</p>
+              <p style={{ fontWeight: 600, fontSize: 15, color: "#1D2E36" }}>Selecione uma pesquisa de campo</p>
               <p style={{ fontSize: 13, color: "#6B7280", textAlign: "center" }}>
                 Escolha ao lado a pesquisa que você irá coletar para começar.
               </p>
@@ -279,7 +279,7 @@ export function ResponderPage() {
           ) : (
             <div className="rounded-xl shadow-sm overflow-hidden" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
               <div style={{ height: 4, backgroundColor: "#F0EDE8" }}>
-                <div style={{ height: "100%", width: `${progress}%`, backgroundColor: "#F5C100", transition: "width 0.3s ease" }} />
+                <div style={{ height: "100%", width: `${progress}%`, backgroundColor: "#F5C944", transition: "width 0.3s ease" }} />
               </div>
 
               <div className="p-6">
@@ -300,7 +300,7 @@ export function ResponderPage() {
                 {form && currentField && (
                   <>
                     <div className="flex items-center gap-3 mb-6">
-                      <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ backgroundColor: "#1B1D40", color: "white" }}>
+                      <span className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" style={{ backgroundColor: "#1D2E36", color: "white" }}>
                         {step + 1}
                       </span>
                       <div>
@@ -308,7 +308,7 @@ export function ResponderPage() {
                           Pergunta {step + 1} de {totalSteps}
                           {currentField.required && <span style={{ color: "#C8102E" }}> *</span>}
                         </p>
-                        <p style={{ fontSize: 16, fontWeight: 700, color: "#1B1D40" }}>{currentField.label}</p>
+                        <p style={{ fontSize: 16, fontWeight: 700, color: "#1D2E36" }}>{currentField.label}</p>
                       </div>
                     </div>
 
@@ -349,7 +349,7 @@ export function ResponderPage() {
                           onClick={() => setStep((s) => s + 1)}
                           disabled={!canNext()}
                           className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-30"
-                          style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                          style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                         >
                           Próxima
                           <ChevronRight size={15} />
@@ -359,7 +359,7 @@ export function ResponderPage() {
                           onClick={handleSubmit}
                           disabled={!canNext() || submitting}
                           className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-30"
-                          style={{ backgroundColor: "#1B1D40", color: "white" }}
+                          style={{ backgroundColor: "#1D2E36", color: "white" }}
                         >
                           {submitting ? <Loader2 size={15} className="animate-spin" /> : <CheckCircle size={15} />}
                           {submitting ? "Salvando..." : "Salvar resposta"}

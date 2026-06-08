@@ -359,11 +359,11 @@ export function AdicionarPesquisaPage() {
       {/* Painel esquerdo — lista de pesquisas */}
       <div className="w-72 shrink-0 flex flex-col gap-3" style={{ maxHeight: "calc(100vh - 100px)" }}>
         <div className="flex items-center justify-between">
-          <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>Pesquisas</h2>
+          <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>Pesquisas</h2>
           <button
             onClick={startNew}
             className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold"
-            style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+            style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
           >
             <Plus size={13} />
             Nova
@@ -409,12 +409,12 @@ export function AdicionarPesquisaPage() {
                 tabIndex={0}
                 className="w-full text-left rounded-xl p-3 transition-all cursor-pointer"
                 style={{
-                  backgroundColor: isSelected ? "#F5C100" : "white",
-                  border: `1px solid ${isSelected ? "#F5C100" : "#F0EDE8"}`,
+                  backgroundColor: isSelected ? "#F5C944" : "white",
+                  border: `1px solid ${isSelected ? "#F5C944" : "#F0EDE8"}`,
                 }}
               >
                 <div className="flex items-start justify-between mb-1">
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1B1D40", lineHeight: 1.3 }}>
+                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1D2E36", lineHeight: 1.3 }}>
                     {r.nome}
                   </p>
                   <span
@@ -434,7 +434,7 @@ export function AdicionarPesquisaPage() {
                     onClick={(e) => copyPublicLink(r, e)}
                     className="mt-2 w-full flex items-center justify-center gap-1.5 px-2 py-1.5 rounded-lg text-xs font-semibold transition-all"
                     style={{
-                      backgroundColor: copied ? "#E8F5E9" : isSelected ? "#1B1D40" : "#F0F7FF",
+                      backgroundColor: copied ? "#E8F5E9" : isSelected ? "#1D2E36" : "#F0F7FF",
                       color: copied ? "#2E7D32" : isSelected ? "white" : "#00538C",
                     }}
                     title="Copiar link público da pesquisa"
@@ -462,9 +462,9 @@ export function AdicionarPesquisaPage() {
         {mode === "view" && !selected && (
           <div className="flex flex-col items-center justify-center h-64 gap-3">
             <div className="p-4 rounded-full" style={{ backgroundColor: "#FFF3CD" }}>
-              <List size={28} color="#F5C100" />
+              <List size={28} color="#F5C944" />
             </div>
-            <p style={{ fontWeight: 600, fontSize: 15, color: "#1B1D40" }}>
+            <p style={{ fontWeight: 600, fontSize: 15, color: "#1D2E36" }}>
               Selecione uma pesquisa
             </p>
             <p style={{ fontSize: 13, color: "#6B7280" }}>
@@ -473,7 +473,7 @@ export function AdicionarPesquisaPage() {
             <button
               onClick={startNew}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold mt-2"
-              style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+              style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
             >
               <Plus size={15} />
               Criar nova pesquisa
@@ -487,7 +487,7 @@ export function AdicionarPesquisaPage() {
               <div className="flex items-start justify-between">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h1 style={{ fontWeight: 700, fontSize: 20, color: "#1B1D40" }}>{selected.nome}</h1>
+                    <h1 style={{ fontWeight: 700, fontSize: 20, color: "#1D2E36" }}>{selected.nome}</h1>
                     <span
                       className="px-2 py-0.5 rounded-full text-xs font-semibold"
                       style={
@@ -505,7 +505,7 @@ export function AdicionarPesquisaPage() {
                   <button
                     onClick={() => startEdit(selected)}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ backgroundColor: "#1B1D40", color: "white" }}
+                    style={{ backgroundColor: "#1D2E36", color: "white" }}
                   >
                     <Edit3 size={13} />
                     Editar
@@ -513,7 +513,7 @@ export function AdicionarPesquisaPage() {
                   <button
                     onClick={openLaunch}
                     className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold"
-                    style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                    style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                   >
                     <Link2 size={13} />
                     Lançar edição
@@ -529,7 +529,7 @@ export function AdicionarPesquisaPage() {
               </div>
               <div className="flex gap-4 mt-4">
                 <div className="text-center">
-                  <p style={{ fontSize: 22, fontWeight: 800, color: "#F5C100" }}>{selected.campos.length}</p>
+                  <p style={{ fontSize: 22, fontWeight: 800, color: "#F5C944" }}>{selected.campos.length}</p>
                   <p style={{ fontSize: 11, color: "#6B7280" }}>Campos</p>
                 </div>
                 <div className="text-center">
@@ -541,7 +541,7 @@ export function AdicionarPesquisaPage() {
 
             {/* Edições lançadas — cada uma com seu link público */}
             <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
-              <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 16 }}>
+              <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 16 }}>
                 Edições e links públicos
               </h3>
 
@@ -591,7 +591,7 @@ export function AdicionarPesquisaPage() {
                           onClick={() => copyEdicaoLink(ed.id)}
                           className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
                           style={{
-                            backgroundColor: copied ? "#E8F5E9" : "#1B1D40",
+                            backgroundColor: copied ? "#E8F5E9" : "#1D2E36",
                             color: copied ? "#2E7D32" : "white",
                           }}
                           title="Copiar link desta edição"
@@ -607,7 +607,7 @@ export function AdicionarPesquisaPage() {
             </div>
 
             <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
-              <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 16 }}>
+              <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 16 }}>
                 Campos do formulário
               </h3>
               <div className="space-y-3">
@@ -619,12 +619,12 @@ export function AdicionarPesquisaPage() {
                   >
                     <span
                       className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                      style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                      style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                     >
                       {i + 1}
                     </span>
                     <div className="flex-1">
-                      <p style={{ fontSize: 13, fontWeight: 600, color: "#1B1D40" }}>{f.label}</p>
+                      <p style={{ fontSize: 13, fontWeight: 600, color: "#1D2E36" }}>{f.label}</p>
                       <p style={{ fontSize: 11, color: "#9CA3AF" }}>
                         {FIELD_TYPES.find((t) => t.tipo === f.tipo)?.label}
                         {f.required && " · Obrigatório"}
@@ -640,7 +640,7 @@ export function AdicionarPesquisaPage() {
         {(mode === "edit" || mode === "new") && (
           <div className="space-y-5">
             <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
-              <h2 style={{ fontWeight: 700, fontSize: 18, color: "#1B1D40", marginBottom: 16 }}>
+              <h2 style={{ fontWeight: 700, fontSize: 18, color: "#1D2E36", marginBottom: 16 }}>
                 {mode === "new" ? "Nova Pesquisa" : `Editando: ${selected?.nome}`}
               </h2>
               <div className="space-y-3">
@@ -652,7 +652,7 @@ export function AdicionarPesquisaPage() {
                     onChange={(e) => setNome(e.target.value)}
                     placeholder="Ex: Demanda Turística 2026"
                     className="w-full mt-1 px-3 py-2.5 rounded-lg text-sm outline-none"
-                    style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                    style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                   />
                 </div>
                 <div>
@@ -663,7 +663,7 @@ export function AdicionarPesquisaPage() {
                     onChange={(e) => setDescricao(e.target.value)}
                     placeholder="Descreva o objetivo desta pesquisa..."
                     className="w-full mt-1 px-3 py-2.5 rounded-lg text-sm outline-none resize-none"
-                    style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                    style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                   />
                 </div>
                 <div>
@@ -681,11 +681,11 @@ export function AdicionarPesquisaPage() {
                           onClick={() => setTipo(opt.value)}
                           className="text-left rounded-lg p-3 transition-all"
                           style={{
-                            border: `2px solid ${active ? "#F5C100" : "#E5E7EB"}`,
+                            border: `2px solid ${active ? "#F5C944" : "#E5E7EB"}`,
                             backgroundColor: active ? "#FFFBEB" : "#F9F9F9",
                           }}
                         >
-                          <p style={{ fontSize: 13, fontWeight: 700, color: "#1B1D40" }}>{opt.titulo}</p>
+                          <p style={{ fontSize: 13, fontWeight: 700, color: "#1D2E36" }}>{opt.titulo}</p>
                           <p style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{opt.desc}</p>
                         </button>
                       );
@@ -697,7 +697,7 @@ export function AdicionarPesquisaPage() {
 
             <div className="rounded-xl p-5" style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}>
               <div className="flex items-center justify-between mb-4">
-                <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40" }}>
+                <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36" }}>
                   Campos ({campos.length})
                 </h3>
                 <FieldTypePicker onSelect={addField} />
@@ -719,7 +719,7 @@ export function AdicionarPesquisaPage() {
                     <div className="flex items-center gap-2 mb-3">
                       <span
                         className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold shrink-0"
-                        style={{ backgroundColor: "#1B1D40", color: "white" }}
+                        style={{ backgroundColor: "#1D2E36", color: "white" }}
                       >
                         {i + 1}
                       </span>
@@ -736,7 +736,7 @@ export function AdicionarPesquisaPage() {
                           checked={f.required}
                           onChange={(e) => updateField(f.id, { required: e.target.checked })}
                           className="rounded"
-                          style={{ accentColor: "#F5C100" }}
+                          style={{ accentColor: "#F5C944" }}
                         />
                         Obrigatório
                       </label>
@@ -753,7 +753,7 @@ export function AdicionarPesquisaPage() {
                       onChange={(e) => updateField(f.id, { label: e.target.value })}
                       placeholder="Texto da pergunta..."
                       className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-                      style={{ border: "1px solid #E5E7EB", backgroundColor: "white", color: "#1B1D40" }}
+                      style={{ border: "1px solid #E5E7EB", backgroundColor: "white", color: "#1D2E36" }}
                     />
                     {f.tipo === "multipla_escolha" && (
                       <div className="mt-2 space-y-1.5">
@@ -772,7 +772,7 @@ export function AdicionarPesquisaPage() {
                         <button
                           onClick={() => addOption(f.id)}
                           className="text-xs flex items-center gap-1"
-                          style={{ color: "#F5C100" }}
+                          style={{ color: "#F5C944" }}
                         >
                           <Plus size={11} />
                           Adicionar opção
@@ -807,7 +807,7 @@ export function AdicionarPesquisaPage() {
                 onClick={handleSave}
                 disabled={saving || !nome.trim()}
                 className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-                style={{ backgroundColor: "#1B1D40", color: "white" }}
+                style={{ backgroundColor: "#1D2E36", color: "white" }}
               >
                 {saving ? (
                   <Loader2 size={14} className="animate-spin" />
@@ -820,7 +820,7 @@ export function AdicionarPesquisaPage() {
                 <button
                   onClick={openLaunch}
                   className="flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-semibold"
-                  style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                  style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                 >
                   <Link2 size={14} />
                   Lançar edição
@@ -835,8 +835,8 @@ export function AdicionarPesquisaPage() {
       {launchModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-md mx-4 rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: "white" }}>
-            <div className="px-6 py-5" style={{ backgroundColor: "#F5C100" }}>
-              <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>
+            <div className="px-6 py-5" style={{ backgroundColor: "#F5C944" }}>
+              <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>
                 {launchDone ? "Edição lançada!" : "Lançar Nova Edição"}
               </h2>
               <p style={{ fontSize: 12, color: "#5A5A2A" }}>{selected?.nome || nome}</p>
@@ -849,7 +849,7 @@ export function AdicionarPesquisaPage() {
                     <div className="p-3 rounded-full" style={{ backgroundColor: "#E8F5E9" }}>
                       <CheckCircle size={32} color="#2E7D32" />
                     </div>
-                    <p style={{ fontSize: 14, fontWeight: 700, color: "#1B1D40" }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#1D2E36" }}>
                       Edição criada com sucesso!
                     </p>
                   </div>
@@ -877,7 +877,7 @@ export function AdicionarPesquisaPage() {
                   <button
                     onClick={() => setLaunchModal(false)}
                     className="w-full py-2.5 rounded-xl text-sm font-semibold"
-                    style={{ backgroundColor: "#1B1D40", color: "white" }}
+                    style={{ backgroundColor: "#1D2E36", color: "white" }}
                   >
                     Fechar
                   </button>
@@ -931,7 +931,7 @@ export function AdicionarPesquisaPage() {
                       onClick={handleConfirmLaunch}
                       disabled={!launchStartDate || launching}
                       className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-                      style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                      style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                     >
                       {launching && <Loader2 size={14} className="animate-spin" />}
                       {launching ? "Lançando..." : "Confirmar lançamento"}
@@ -948,7 +948,7 @@ export function AdicionarPesquisaPage() {
       {deleteConfirm !== null && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-sm mx-4 rounded-2xl shadow-2xl p-6" style={{ backgroundColor: "white" }}>
-            <h3 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40", marginBottom: 8 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36", marginBottom: 8 }}>
               Excluir pesquisa
             </h3>
             <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 20 }}>

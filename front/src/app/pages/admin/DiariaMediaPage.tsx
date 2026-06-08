@@ -66,14 +66,14 @@ export function DiariaMediaPage() {
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>Diária Média</h1>
+          <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>Diária Média</h1>
           <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
             Insira os dados coletados do Booking para cada meio de hospedagem
           </p>
         </div>
         <div
           className="px-4 py-2 rounded-xl flex items-center gap-2"
-          style={{ backgroundColor: pendingCount > 0 ? "#FFF3CD" : "#E8F5E9", border: `1px solid ${pendingCount > 0 ? "#F5C100" : "#A5D6A7"}` }}
+          style={{ backgroundColor: pendingCount > 0 ? "#FFF3CD" : "#E8F5E9", border: `1px solid ${pendingCount > 0 ? "#F5C944" : "#A5D6A7"}` }}
         >
           <Clock size={14} style={{ color: pendingCount > 0 ? "#B8860B" : "#2E7D32" }} />
           <span style={{ fontSize: 13, fontWeight: 600, color: pendingCount > 0 ? "#B8860B" : "#2E7D32" }}>
@@ -90,9 +90,9 @@ export function DiariaMediaPage() {
             onClick={() => setFilterStatus(f)}
             className="px-4 py-1.5 rounded-lg text-sm font-semibold capitalize transition-all"
             style={{
-              backgroundColor: filterStatus === f ? "#F5C100" : "white",
-              color: filterStatus === f ? "#1B1D40" : "#6B7280",
-              border: `1px solid ${filterStatus === f ? "#F5C100" : "#E5E7EB"}`,
+              backgroundColor: filterStatus === f ? "#F5C944" : "white",
+              color: filterStatus === f ? "#1D2E36" : "#6B7280",
+              border: `1px solid ${filterStatus === f ? "#F5C944" : "#E5E7EB"}`,
             }}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)}
@@ -121,7 +121,7 @@ export function DiariaMediaPage() {
                 style={{
                   backgroundColor: hotel.status === "pendente" ? "#FFF3CD" : "#E8F5E9",
                   color: hotel.status === "pendente" ? "#B8860B" : "#2E7D32",
-                  border: `1px solid ${hotel.status === "pendente" ? "#F5C100" : "#A5D6A7"}`,
+                  border: `1px solid ${hotel.status === "pendente" ? "#F5C944" : "#A5D6A7"}`,
                 }}
               >
                 {hotel.status === "pendente" ? (
@@ -134,7 +134,7 @@ export function DiariaMediaPage() {
               {/* Category badge */}
               <div
                 className="absolute top-3 left-3 px-2.5 py-1 rounded-full text-xs font-bold"
-                style={{ backgroundColor: "#1B1D40CC", color: "white" }}
+                style={{ backgroundColor: "#1D2E36CC", color: "white" }}
               >
                 {hotel.category}
               </div>
@@ -145,10 +145,10 @@ export function DiariaMediaPage() {
               {/* Stars */}
               <div className="flex gap-0.5 mb-1">
                 {Array.from({ length: hotel.stars }).map((_, i) => (
-                  <Star key={i} size={11} fill="#F5C100" color="#F5C100" />
+                  <Star key={i} size={11} fill="#F5C944" color="#F5C944" />
                 ))}
               </div>
-              <h3 style={{ fontWeight: 700, fontSize: 15, color: "#1B1D40", lineHeight: 1.3 }}>
+              <h3 style={{ fontWeight: 700, fontSize: 15, color: "#1D2E36", lineHeight: 1.3 }}>
                 {hotel.name}
               </h3>
               <p style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>
@@ -164,8 +164,8 @@ export function DiariaMediaPage() {
                 onClick={() => openFill(hotel)}
                 className="w-full mt-4 py-2 rounded-lg text-sm font-semibold transition-all"
                 style={{
-                  backgroundColor: hotel.status === "pendente" ? "#F5C100" : "#E8F5E9",
-                  color: hotel.status === "pendente" ? "#1B1D40" : "#2E7D32",
+                  backgroundColor: hotel.status === "pendente" ? "#F5C944" : "#E8F5E9",
+                  color: hotel.status === "pendente" ? "#1D2E36" : "#2E7D32",
                 }}
               >
                 {hotel.status === "pendente" ? "Preencher dados" : "Editar dados"}
@@ -185,16 +185,16 @@ export function DiariaMediaPage() {
             {/* Modal header */}
             <div
               className="flex items-center justify-between px-6 py-4"
-              style={{ backgroundColor: "#F5C100" }}
+              style={{ backgroundColor: "#F5C944" }}
             >
               <div>
-                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>
+                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>
                   Preencher Diária Média
                 </h2>
                 <p style={{ fontSize: 12, color: "#5A5A2A" }}>{selectedHotel.name}</p>
               </div>
               <button onClick={() => setSelectedHotel(null)}>
-                <X size={20} color="#1B1D40" />
+                <X size={20} color="#1D2E36" />
               </button>
             </div>
 
@@ -202,7 +202,7 @@ export function DiariaMediaPage() {
             {saved ? (
               <div className="p-8 flex flex-col items-center gap-3">
                 <CheckCircle size={48} color="#2E7D32" />
-                <p style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>Dados salvos!</p>
+                <p style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>Dados salvos!</p>
                 <p style={{ fontSize: 13, color: "#6B7280" }}>Registro atualizado com sucesso.</p>
               </div>
             ) : (
@@ -290,7 +290,7 @@ export function DiariaMediaPage() {
                   <button
                     type="submit"
                     className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
-                    style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                    style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                   >
                     Salvar dados
                   </button>

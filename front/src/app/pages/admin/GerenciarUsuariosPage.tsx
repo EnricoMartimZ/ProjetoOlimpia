@@ -17,15 +17,15 @@ import { useAuth } from "../../context/AuthContext";
 const ROLE_META: Record<RoleType, { label: string; bg: string; text: string; checkBg: string }> = {
   servidor: {
     label: "ADM",
-    bg: "#F5C100",
-    text: "#1B1D40",
-    checkBg: "#F5C100",
+    bg: "#F5C944",
+    text: "#1D2E36",
+    checkBg: "#F5C944",
   },
   pesquisador_campo: {
     label: "Pesquisador",
-    bg: "#1B1D40",
+    bg: "#1D2E36",
     text: "white",
-    checkBg: "#1B1D40",
+    checkBg: "#1D2E36",
   },
 };
 
@@ -136,7 +136,7 @@ function NovoUsuarioModal({ onClose, onCreated }: NovoUsuarioModalProps) {
   const inputStyle = {
     border: "1px solid #E5E7EB",
     backgroundColor: "#F9F9F9",
-    color: "#1B1D40",
+    color: "#1D2E36",
     fontFamily: "Inter, sans-serif",
   };
 
@@ -152,14 +152,14 @@ function NovoUsuarioModal({ onClose, onCreated }: NovoUsuarioModalProps) {
         {/* Header */}
         <div
           className="flex items-center justify-between px-6 py-4"
-          style={{ backgroundColor: "#F5C100" }}
+          style={{ backgroundColor: "#F5C944" }}
         >
           <div>
-            <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>Novo usuário</h2>
+            <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>Novo usuário</h2>
             <p style={{ fontSize: 12, color: "#5A5A2A" }}>Preencha os dados de acesso</p>
           </div>
           <button onClick={onClose}>
-            <X size={20} color="#1B1D40" />
+            <X size={20} color="#1D2E36" />
           </button>
         </div>
 
@@ -276,7 +276,7 @@ function NovoUsuarioModal({ onClose, onCreated }: NovoUsuarioModalProps) {
               type="submit"
               disabled={loading}
               className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-              style={{ backgroundColor: "#1B1D40", color: "white" }}
+              style={{ backgroundColor: "#1D2E36", color: "white" }}
             >
               {loading ? <Loader2 size={14} className="animate-spin" /> : "Criar usuário"}
             </button>
@@ -308,11 +308,11 @@ function ConfirmDeleteModal({ nome, onConfirm, onCancel, loading }: ConfirmDelet
         className="w-full max-w-sm mx-4 rounded-2xl shadow-2xl p-6"
         style={{ backgroundColor: "white" }}
       >
-        <h3 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40", marginBottom: 8 }}>
+        <h3 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36", marginBottom: 8 }}>
           Remover usuário
         </h3>
         <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 20 }}>
-          Deseja remover <strong style={{ color: "#1B1D40" }}>{nome}</strong>? Esta ação não pode ser desfeita.
+          Deseja remover <strong style={{ color: "#1D2E36" }}>{nome}</strong>? Esta ação não pode ser desfeita.
         </p>
         <div className="flex gap-3">
           <button
@@ -390,7 +390,7 @@ function RoleEditor({ usuario, onSaved, onCancel }: RoleEditorProps) {
           onClick={handleSave}
           disabled={saving}
           className="flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold disabled:opacity-50"
-          style={{ backgroundColor: "#1B1D40", color: "white" }}
+          style={{ backgroundColor: "#1D2E36", color: "white" }}
         >
           {saving ? <Loader2 size={10} className="animate-spin" /> : <Check size={10} />}
           Salvar
@@ -461,7 +461,7 @@ export function GerenciarUsuariosPage() {
       {/* Cabeçalho */}
       <div className="mb-6 flex items-start justify-between">
         <div>
-          <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>Usuários</h1>
+          <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>Usuários</h1>
           <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
             Gerencie os acessos ao sistema
           </p>
@@ -469,7 +469,7 @@ export function GerenciarUsuariosPage() {
         <button
           onClick={() => setShowNovo(true)}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold"
-          style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+          style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
         >
           <Plus size={13} />
           Novo usuário
@@ -495,7 +495,7 @@ export function GerenciarUsuariosPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr style={{ backgroundColor: "#1B1D40" }}>
+              <tr style={{ backgroundColor: "#1D2E36" }}>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Nome</th>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>E-mail</th>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Perfil(is)</th>
@@ -528,12 +528,12 @@ export function GerenciarUsuariosPage() {
                       key={u.id}
                       style={{ backgroundColor: i % 2 === 0 ? "white" : "#FAFAFA" }}
                     >
-                      <td className="px-4 py-3 text-sm font-semibold" style={{ color: "#1B1D40" }}>
+                      <td className="px-4 py-3 text-sm font-semibold" style={{ color: "#1D2E36" }}>
                         {u.nome}
                         {isSelf && (
                           <span
                             className="ml-2 text-xs px-1.5 py-0.5 rounded-full font-semibold"
-                            style={{ backgroundColor: "#F5C10033", color: "#B8860B" }}
+                            style={{ backgroundColor: "#F5C94433", color: "#B8860B" }}
                           >
                             você
                           </span>

@@ -233,7 +233,7 @@ export function ConsultarPage() {
   return (
     <div className="p-6" style={{ fontFamily: "Inter, sans-serif" }}>
       <div className="mb-6">
-        <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>Consultar Dados</h1>
+        <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>Consultar Dados</h1>
         <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
           Visualize e gerencie os registros de respostas de cada edição
         </p>
@@ -252,7 +252,7 @@ export function ConsultarPage() {
             value={selectedPesquisa}
             onChange={(e) => setSelectedPesquisa(e.target.value ? Number(e.target.value) : "")}
             className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-            style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+            style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
           >
             {pesquisas.length === 0 && <option value="">Nenhuma pesquisa</option>}
             {pesquisas.map((p) => (
@@ -268,7 +268,7 @@ export function ConsultarPage() {
             value={selectedEdicao}
             onChange={(e) => { setSelectedEdicao(e.target.value ? Number(e.target.value) : ""); setPage(1); }}
             className="w-full px-3 py-2 rounded-lg text-sm outline-none"
-            style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+            style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
           >
             {edicoes.length === 0 ? (
               <option value="">Nenhuma edição</option>
@@ -293,7 +293,7 @@ export function ConsultarPage() {
               onChange={(e) => setSearchInput(e.target.value)}
               placeholder="Buscar em qualquer resposta..."
               className="w-full pl-8 pr-3 py-2 rounded-lg text-sm outline-none"
-              style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+              style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
             />
           </div>
         </div>
@@ -302,7 +302,7 @@ export function ConsultarPage() {
             onClick={exportCSV}
             disabled={exporting || total === 0}
             className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold disabled:opacity-40"
-            style={{ backgroundColor: "#1B1D40", color: "white" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
             Exportar CSV
@@ -334,7 +334,7 @@ export function ConsultarPage() {
           onClick={openNewRow}
           disabled={selectedEdicao === ""}
           className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold disabled:opacity-40"
-          style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+          style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
         >
           <Plus size={13} />
           Novo registro
@@ -360,7 +360,7 @@ export function ConsultarPage() {
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
-              <tr style={{ backgroundColor: "#1B1D40" }}>
+              <tr style={{ backgroundColor: "#1D2E36" }}>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>ID</th>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Data/Hora</th>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Coletado por</th>
@@ -397,7 +397,7 @@ export function ConsultarPage() {
                     </td>
                     <td className="px-4 py-3 text-xs whitespace-nowrap">
                       {r.usuario_nome ? (
-                        <span style={{ color: "#1B1D40", fontWeight: 600 }}>{r.usuario_nome}</span>
+                        <span style={{ color: "#1D2E36", fontWeight: 600 }}>{r.usuario_nome}</span>
                       ) : (
                         <span style={{ color: "#9CA3AF" }}>Público / anônimo</span>
                       )}
@@ -452,7 +452,7 @@ export function ConsultarPage() {
       {confirmDelete !== null && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-sm mx-4 rounded-2xl shadow-2xl p-6" style={{ backgroundColor: "white" }}>
-            <h3 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40", marginBottom: 8 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36", marginBottom: 8 }}>
               Confirmar exclusão
             </h3>
             <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 20 }}>
@@ -483,15 +483,15 @@ export function ConsultarPage() {
       {newRowModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: "white" }}>
-            <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: "#F5C100" }}>
+            <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: "#F5C944" }}>
               <div>
-                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>Novo Registro</h2>
+                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>Novo Registro</h2>
                 <p style={{ fontSize: 12, color: "#5A5A2A" }}>
                   {pesquisaAtual?.nome} — {edicaoAtual?.numero_edicao}ª edição
                 </p>
               </div>
               <button onClick={() => setNewRowModal(false)}>
-                <X size={20} color="#1B1D40" />
+                <X size={20} color="#1D2E36" />
               </button>
             </div>
 
@@ -515,7 +515,7 @@ export function ConsultarPage() {
                       value={newRow[c.id] ?? ""}
                       onChange={(e) => setNewRow({ ...newRow, [c.id]: e.target.value })}
                       className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
-                      style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                      style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                     >
                       <option value="">Selecione...</option>
                       {c.opcoes.map((o) => <option key={o} value={o}>{o}</option>)}
@@ -526,7 +526,7 @@ export function ConsultarPage() {
                       value={newRow[c.id] ?? ""}
                       onChange={(e) => setNewRow({ ...newRow, [c.id]: e.target.value })}
                       className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
-                      style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                      style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                     >
                       <option value="">Selecione...</option>
                       <option value="Sim">Sim</option>
@@ -542,9 +542,9 @@ export function ConsultarPage() {
                           onClick={() => setNewRow({ ...newRow, [c.id]: String(v) })}
                           className="flex-1 py-2 rounded-lg text-sm font-bold"
                           style={{
-                            backgroundColor: newRow[c.id] === String(v) ? "#F5C100" : "#F9F9F9",
-                            color: newRow[c.id] === String(v) ? "#1B1D40" : "#9CA3AF",
-                            border: `1px solid ${newRow[c.id] === String(v) ? "#F5C100" : "#E5E7EB"}`,
+                            backgroundColor: newRow[c.id] === String(v) ? "#F5C944" : "#F9F9F9",
+                            color: newRow[c.id] === String(v) ? "#1D2E36" : "#9CA3AF",
+                            border: `1px solid ${newRow[c.id] === String(v) ? "#F5C944" : "#E5E7EB"}`,
                           }}
                         >
                           {v}
@@ -576,7 +576,7 @@ export function ConsultarPage() {
                   onClick={handleAddRow}
                   disabled={savingRow}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
-                  style={{ backgroundColor: "#1B1D40", color: "white" }}
+                  style={{ backgroundColor: "#1D2E36", color: "white" }}
                 >
                   {savingRow ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
                   {savingRow ? "Salvando..." : "Adicionar registro"}

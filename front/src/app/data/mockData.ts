@@ -74,7 +74,7 @@ export const monthlyData = [
 ];
 
 export const originData = [
-  { name: "São Paulo capital", value: 38.2, color: "#F5C100" },
+  { name: "São Paulo capital", value: 38.2, color: "#F5C944" },
   { name: "Ribeirão Preto", value: 22.4, color: "#1565C0" },
   { name: "Outros SP", value: 19.6, color: "#00796B" },
   { name: "Minas Gerais", value: 12.3, color: "#C8102E" },
