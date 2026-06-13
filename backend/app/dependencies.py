@@ -55,8 +55,9 @@ def require_servidor(usuario: Usuario = Depends(get_current_user)) -> Usuario:
     Garante que o usuário autenticado tem role "servidor".
     Use em rotas exclusivas da Secretaria (criar pesquisa, lançar edição,
     consultar/remover respostas). Levanta 403 para qualquer outra role.
+    Suporta multi-role: role armazenado como string separada por vírgula.
     """
-    if usuario.role != "servidor":
+    if "servidor" not in usuario.role.split(","):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Esta ação é exclusiva para servidores da Secretaria.",
@@ -69,8 +70,9 @@ def require_pesquisador(usuario: Usuario = Depends(get_current_user)) -> Usuario
     Garante que o usuário autenticado tem role "pesquisador_campo".
     Use nas rotas de coleta de campo (listar/abrir/responder pesquisas do tipo
     "campo"). Levanta 403 para qualquer outra role (inclusive servidor).
+    Suporta multi-role: role armazenado como string separada por vírgula.
     """
-    if usuario.role != "pesquisador_campo":
+    if "pesquisador_campo" not in usuario.role.split(","):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Esta ação é exclusiva para pesquisadores de campo.",

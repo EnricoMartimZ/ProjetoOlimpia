@@ -124,7 +124,7 @@ export function PublicSurveyPage() {
           <div className="p-4 rounded-full inline-block mb-4" style={{ backgroundColor: "#FFEBEE" }}>
             <AlertTriangle size={40} color="#C62828" />
           </div>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>
             Pesquisa não encontrada
           </h2>
           <p style={{ fontSize: 14, color: "#6B7280", marginTop: 8, marginBottom: 20 }}>
@@ -133,7 +133,7 @@ export function PublicSurveyPage() {
           <button
             onClick={() => navigate("/")}
             className="w-full py-3 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: "#1B1D40", color: "white" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             Voltar ao início
           </button>
@@ -161,7 +161,7 @@ export function PublicSurveyPage() {
           <div className="p-4 rounded-full inline-block mb-4" style={{ backgroundColor: "#E8F5E9" }}>
             <CheckCircle size={40} color="#2E7D32" />
           </div>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>
             Obrigado pela sua participação!
           </h2>
           <p style={{ fontSize: 14, color: "#6B7280", marginTop: 8, marginBottom: 20 }}>
@@ -172,13 +172,13 @@ export function PublicSurveyPage() {
             style={{ backgroundColor: "#ffffff", border: "1px solid #F0EDE8" }}
           >
             <p style={{ fontSize: 12, color: "#9CA3AF", marginBottom: 8 }}>Pesquisa respondida</p>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#1B1D40" }}>{edicao.pesquisa_nome}</p>
+            <p style={{ fontSize: 15, fontWeight: 700, color: "#1D2E36" }}>{edicao.pesquisa_nome}</p>
             <p style={{ fontSize: 12, color: "#6B7280" }}>{campos.length} perguntas · {Object.keys(answers).length} respostas</p>
           </div>
           <button
             onClick={() => navigate("/")}
             className="w-full py-3 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: "#1B1D40", color: "white" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             Voltar ao início
           </button>
@@ -206,7 +206,7 @@ export function PublicSurveyPage() {
           <div className="p-4 rounded-full inline-block mb-4" style={{ backgroundColor: "#FFF3CD" }}>
             <AlertTriangle size={40} color="#B8860B" />
           </div>
-          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>
             Pesquisa encerrada
           </h2>
           <p style={{ fontSize: 14, color: "#6B7280", marginTop: 8, marginBottom: 20 }}>
@@ -215,7 +215,7 @@ export function PublicSurveyPage() {
           <button
             onClick={() => navigate("/dados-publicos")}
             className="w-full py-3 rounded-xl text-sm font-semibold"
-            style={{ backgroundColor: "#1B1D40", color: "white" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             Ver resultados públicos
           </button>
@@ -241,14 +241,14 @@ export function PublicSurveyPage() {
             className="rounded-2xl shadow-xl overflow-hidden w-full max-w-lg"
             style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
           >
-            <div className="p-6" style={{ backgroundColor: "#F5C100" }}>
+            <div className="p-6" style={{ backgroundColor: "#F5C944" }}>
               <span
                 className="inline-block px-3 py-1 rounded-full text-xs font-bold mb-3"
-                style={{ backgroundColor: "#1B1D40", color: "white" }}
+                style={{ backgroundColor: "#1D2E36", color: "white" }}
               >
                 Pesquisa Pública
               </span>
-              <h1 style={{ fontWeight: 800, fontSize: 22, color: "#1B1D40" }}>
+              <h1 style={{ fontWeight: 800, fontSize: 22, color: "#1D2E36" }}>
                 {edicao.pesquisa_nome}
               </h1>
               <p style={{ fontSize: 13, color: "#5A5A2A", marginTop: 4 }}>
@@ -259,7 +259,7 @@ export function PublicSurveyPage() {
             <div className="p-6">
               <div className="flex gap-6 mb-6">
                 <div>
-                  <p style={{ fontSize: 24, fontWeight: 800, color: "#F5C100" }}>{campos.length}</p>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: "#F5C944" }}>{campos.length}</p>
                   <p style={{ fontSize: 12, color: "#6B7280" }}>Perguntas</p>
                 </div>
                 <div>
@@ -281,7 +281,7 @@ export function PublicSurveyPage() {
                 onClick={() => setStarted(true)}
                 disabled={campos.length === 0}
                 className="w-full py-3.5 rounded-xl text-sm font-bold disabled:opacity-40"
-                style={{ backgroundColor: "#1B1D40", color: "white" }}
+                style={{ backgroundColor: "#1D2E36", color: "white" }}
               >
                 {campos.length === 0 ? "Esta pesquisa não tem perguntas" : "Começar pesquisa →"}
               </button>
@@ -304,10 +304,10 @@ export function PublicSurveyPage() {
     >
       <header
         className="flex items-center justify-between px-6 py-3 shadow-sm"
-        style={{ backgroundColor: "#F5C100" }}
+        style={{ backgroundColor: "#F5C944" }}
       >
         <OlimpiaLogo size="sm" variant="icon" />
-        <span style={{ fontSize: 13, fontWeight: 600, color: "#1B1D40" }}>{edicao.pesquisa_nome}</span>
+        <span style={{ fontSize: 13, fontWeight: 600, color: "#1D2E36" }}>{edicao.pesquisa_nome}</span>
         <span style={{ fontSize: 12, color: "#5A5A2A" }}>
           {step + 1} / {campos.length}
         </span>
@@ -318,7 +318,7 @@ export function PublicSurveyPage() {
           style={{
             height: "100%",
             width: `${progress}%`,
-            backgroundColor: "#F5C100",
+            backgroundColor: "#F5C944",
             transition: "width 0.3s ease",
           }}
         />
@@ -338,7 +338,7 @@ export function PublicSurveyPage() {
                 Pergunta {step + 1} de {campos.length}
                 {currentField.required && <span style={{ color: "#C8102E" }}> *</span>}
               </span>
-              <h2 style={{ fontWeight: 700, fontSize: 18, color: "#1B1D40", lineHeight: 1.4 }}>
+              <h2 style={{ fontWeight: 700, fontSize: 18, color: "#1D2E36", lineHeight: 1.4 }}>
                 {currentField.label}
               </h2>
             </div>
@@ -351,7 +351,7 @@ export function PublicSurveyPage() {
                   onChange={(e) => setAnswer(currentField.id, e.target.value)}
                   placeholder="Sua resposta..."
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                   autoFocus
                 />
               )}
@@ -363,7 +363,7 @@ export function PublicSurveyPage() {
                   onChange={(e) => setAnswer(currentField.id, e.target.value)}
                   placeholder="Sua resposta..."
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none resize-none"
-                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                   autoFocus
                 />
               )}
@@ -375,7 +375,7 @@ export function PublicSurveyPage() {
                   onChange={(e) => setAnswer(currentField.id, e.target.value)}
                   placeholder="0"
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                   autoFocus
                 />
               )}
@@ -388,16 +388,16 @@ export function PublicSurveyPage() {
                       onClick={() => setAnswer(currentField.id, op)}
                       className="w-full px-4 py-3.5 rounded-xl text-sm font-semibold text-left transition-all flex items-center gap-3"
                       style={{
-                        backgroundColor: answers[currentField.id] === op ? "#F5C100" : "#F9F9F9",
-                        color: answers[currentField.id] === op ? "#1B1D40" : "#374151",
-                        border: `2px solid ${answers[currentField.id] === op ? "#F5C100" : "#E5E7EB"}`,
+                        backgroundColor: answers[currentField.id] === op ? "#F5C944" : "#F9F9F9",
+                        color: answers[currentField.id] === op ? "#1D2E36" : "#374151",
+                        border: `2px solid ${answers[currentField.id] === op ? "#F5C944" : "#E5E7EB"}`,
                       }}
                     >
                       <span
                         className="w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0"
                         style={{
-                          borderColor: answers[currentField.id] === op ? "#1B1D40" : "#D1D5DB",
-                          backgroundColor: answers[currentField.id] === op ? "#1B1D40" : "transparent",
+                          borderColor: answers[currentField.id] === op ? "#1D2E36" : "#D1D5DB",
+                          backgroundColor: answers[currentField.id] === op ? "#1D2E36" : "transparent",
                         }}
                       >
                         {answers[currentField.id] === op && (
@@ -423,9 +423,9 @@ export function PublicSurveyPage() {
                         onClick={() => setAnswer(currentField.id, v)}
                         className="flex-1 py-4 rounded-xl font-bold text-lg transition-all"
                         style={{
-                          backgroundColor: answers[currentField.id] === v ? "#F5C100" : "#F9F9F9",
-                          color: answers[currentField.id] === v ? "#1B1D40" : "#374151",
-                          border: `2px solid ${answers[currentField.id] === v ? "#F5C100" : "#E5E7EB"}`,
+                          backgroundColor: answers[currentField.id] === v ? "#F5C944" : "#F9F9F9",
+                          color: answers[currentField.id] === v ? "#1D2E36" : "#374151",
+                          border: `2px solid ${answers[currentField.id] === v ? "#F5C944" : "#E5E7EB"}`,
                         }}
                       >
                         {v}
@@ -464,7 +464,7 @@ export function PublicSurveyPage() {
                   value={(answers[currentField.id] as string) || ""}
                   onChange={(e) => setAnswer(currentField.id, e.target.value)}
                   className="w-full px-4 py-3 rounded-xl text-sm outline-none"
-                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1B1D40" }}
+                  style={{ border: "2px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                 />
               )}
             </div>
@@ -484,7 +484,7 @@ export function PublicSurveyPage() {
                   onClick={() => setStep((s) => s + 1)}
                   disabled={!canNext()}
                   className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-30"
-                  style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                  style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                 >
                   Próxima
                   <ChevronRight size={16} />
@@ -494,7 +494,7 @@ export function PublicSurveyPage() {
                   onClick={handleSubmit}
                   disabled={!canNext() || submitting}
                   className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-30"
-                  style={{ backgroundColor: "#1B1D40", color: "white" }}
+                  style={{ backgroundColor: "#1D2E36", color: "white" }}
                 >
                   {submitting ? <Loader2 size={16} className="animate-spin" /> : <CheckCircle size={16} />}
                   {submitting ? "Enviando..." : "Enviar respostas"}

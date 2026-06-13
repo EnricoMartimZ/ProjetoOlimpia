@@ -6,14 +6,14 @@ import { TrendingUp, Users, ClipboardList, Building2 } from "lucide-react";
 import { kpiData, monthlyData, originData, occupancyByType } from "../../data/mockData";
 
 const KPI_ICONS = [TrendingUp, Users, ClipboardList, Building2];
-const KPI_COLORS = ["#F5C100", "#00538C", "#009688", "#2E7D32"];
+const KPI_COLORS = ["#F5C944", "#00538C", "#009688", "#2E7D32"];
 
 export function DashboardPage() {
   return (
     <div className="p-6 space-y-6" style={{ fontFamily: "Inter, sans-serif" }}>
       {/* Header */}
       <div>
-        <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1B1D40" }}>
+        <h1 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>
           Painel de Visualização
         </h1>
         <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
@@ -48,7 +48,7 @@ export function DashboardPage() {
                   {kpi.change}
                 </span>
               </div>
-              <p style={{ fontSize: 24, fontWeight: 800, color: "#1B1D40", lineHeight: 1.2 }}>
+              <p style={{ fontSize: 24, fontWeight: 800, color: "#1D2E36", lineHeight: 1.2 }}>
                 {kpi.value}
               </p>
               <p style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{kpi.label}</p>
@@ -64,7 +64,7 @@ export function DashboardPage() {
           className="lg:col-span-2 rounded-xl p-4 shadow-sm"
           style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
         >
-          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
             Turistas Atendidos por Mês
           </h3>
           <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Jan – Mai 2026</p>
@@ -72,8 +72,8 @@ export function DashboardPage() {
             <AreaChart data={monthlyData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="gradTuristas" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#F5C100" stopOpacity={0.35} />
-                  <stop offset="95%" stopColor="#F5C100" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#F5C944" stopOpacity={0.35} />
+                  <stop offset="95%" stopColor="#F5C944" stopOpacity={0} />
                 </linearGradient>
                 <linearGradient id="gradRespostas" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#00538C" stopOpacity={0.35} />
@@ -85,10 +85,10 @@ export function DashboardPage() {
               <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} />
               <Tooltip
                 contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }}
-                labelStyle={{ fontWeight: 600, color: "#1B1D40" }}
+                labelStyle={{ fontWeight: 600, color: "#1D2E36" }}
               />
               <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-              <Area type="monotone" dataKey="turistas" name="Turistas" stroke="#F5C100" strokeWidth={2} fill="url(#gradTuristas)" />
+              <Area type="monotone" dataKey="turistas" name="Turistas" stroke="#F5C944" strokeWidth={2} fill="url(#gradTuristas)" />
               <Area type="monotone" dataKey="respostas" name="Respostas" stroke="#00538C" strokeWidth={2} fill="url(#gradRespostas)" />
             </AreaChart>
           </ResponsiveContainer>
@@ -99,7 +99,7 @@ export function DashboardPage() {
           className="rounded-xl p-4 shadow-sm"
           style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
         >
-          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
             Origem dos Turistas
           </h3>
           <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>Por região de procedência</p>
@@ -123,7 +123,7 @@ export function DashboardPage() {
                   <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                   <span style={{ color: "#374151" }}>{item.name}</span>
                 </div>
-                <span style={{ fontWeight: 600, color: "#1B1D40" }}>{item.value}%</span>
+                <span style={{ fontWeight: 600, color: "#1D2E36" }}>{item.value}%</span>
               </div>
             ))}
           </div>
@@ -137,7 +137,7 @@ export function DashboardPage() {
           className="rounded-xl p-4 shadow-sm"
           style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
         >
-          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
             Taxa de Ocupação por Tipo de Hospedagem
           </h3>
           <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Média do período (em %)</p>
@@ -151,7 +151,7 @@ export function DashboardPage() {
               />
               <Bar dataKey="ocupacao" name="Ocupação (%)" radius={[4, 4, 0, 0]}>
                 {occupancyByType.map((_, i) => (
-                  <Cell key={i} fill={i % 2 === 0 ? "#F5C100" : "#00538C"} />
+                  <Cell key={i} fill={i % 2 === 0 ? "#F5C944" : "#00538C"} />
                 ))}
               </Bar>
             </BarChart>
@@ -163,7 +163,7 @@ export function DashboardPage() {
           className="rounded-xl p-4 shadow-sm"
           style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
         >
-          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+          <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
             Diária Média por Tipo de Hospedagem
           </h3>
           <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Valor médio em R$ (mai/2026)</p>
@@ -178,7 +178,7 @@ export function DashboardPage() {
               />
               <Bar dataKey="receita" name="Diária Média (R$)" radius={[4, 4, 0, 0]}>
                 {occupancyByType.map((_, i) => (
-                  <Cell key={i} fill={["#C8102E", "#F5C100", "#009688", "#00538C", "#2E7D32"][i]} />
+                  <Cell key={i} fill={["#C8102E", "#F5C944", "#009688", "#00538C", "#2E7D32"][i]} />
                 ))}
               </Bar>
             </BarChart>
@@ -191,12 +191,12 @@ export function DashboardPage() {
         className="rounded-xl p-4 shadow-sm"
         style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
       >
-        <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 12 }}>
+        <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 12 }}>
           Pesquisas Ativas
         </h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
           {[
-            { nome: "Demanda Turística", edicao: "2ª Ed. 2026", respostas: 312, cor: "#F5C100" },
+            { nome: "Demanda Turística", edicao: "2ª Ed. 2026", respostas: 312, cor: "#F5C944" },
             { nome: "Percepção do Turismo", edicao: "2ª Ed. 2026", respostas: 128, cor: "#00538C" },
             { nome: "Taxa de Ocupação", edicao: "5ª Ed. 2026", respostas: 47, cor: "#009688" },
             { nome: "Fluxo de Turistas", edicao: "7ª Ed. 2026", respostas: 93, cor: "#2E7D32" },
@@ -210,7 +210,7 @@ export function DashboardPage() {
                 className="w-full h-1 rounded-full mb-3"
                 style={{ backgroundColor: p.cor }}
               />
-              <p style={{ fontSize: 13, fontWeight: 700, color: "#1B1D40" }}>{p.nome}</p>
+              <p style={{ fontSize: 13, fontWeight: 700, color: "#1D2E36" }}>{p.nome}</p>
               <p style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>{p.edicao}</p>
               <p style={{ fontSize: 20, fontWeight: 800, color: p.cor, marginTop: 8 }}>{p.respostas}</p>
               <p style={{ fontSize: 11, color: "#6B7280" }}>respostas</p>

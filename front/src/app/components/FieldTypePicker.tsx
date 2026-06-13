@@ -20,7 +20,7 @@ export function FieldTypePicker({ onSelect }: FieldTypePickerProps) {
       <button
         onClick={() => setOpen(!open)}
         className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-        style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+        style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
       >
         <Plus size={13} />
         Adicionar campo
@@ -41,7 +41,7 @@ export function FieldTypePicker({ onSelect }: FieldTypePickerProps) {
                 className="w-full flex items-center gap-2 px-4 py-2 text-sm hover:bg-yellow-50"
                 style={{ color: "#374151" }}
               >
-                <Icon size={14} color="#F5C100" />
+                <Icon size={14} color="#F5C944" />
                 {ft.label}
               </button>
             );

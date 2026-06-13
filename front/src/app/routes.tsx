@@ -1,23 +1,24 @@
 import { createBrowserRouter, Navigate, Outlet } from "react-router";
 import { LoginPage } from "./pages/LoginPage";
-import { CadastroPage } from "./pages/CadastroPage";
 import { AdminLayout } from "./pages/admin/AdminLayout";
 import { DashboardPage } from "./pages/admin/DashboardPage";
 import { DiariaMediaPage } from "./pages/admin/diaria-media/DiariaMediaPage";
 import { ConsultarPage } from "./pages/admin/ConsultarPage";
 import { AdicionarPesquisaPage } from "./pages/admin/AdicionarPesquisaPage";
+import { GerenciarUsuariosPage } from "./pages/admin/GerenciarUsuariosPage";
 import { ResearcherLayout } from "./pages/researcher/ResearcherLayout";
 import { ResearcherDashboard } from "./pages/researcher/ResearcherDashboard";
 import { ResponderPage } from "./pages/researcher/ResponderPage";
 import { PublicSurveyPage } from "./pages/PublicSurveyPage";
 import { PublicStatsPage } from "./pages/PublicStatsPage";
+import { PublicSurveysListPage } from "./pages/PublicSurveysListPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { useAuth } from "./context/AuthContext";
 
 function RequireRole({ role }: { role: string }) {
   const { user } = useAuth();
   if (!user) return <Navigate to="/" replace />;
-  if (user.role !== role) return <Navigate to="/" replace />;
+  if (!user.role.split(",").includes(role)) return <Navigate to="/" replace />;
   return <Outlet />;
 }
 
@@ -25,10 +26,6 @@ export const router = createBrowserRouter([
   {
     path: "/",
     Component: LoginPage,
-  },
-  {
-    path: "/cadastro",
-    Component: CadastroPage,
   },
   {
     path: "/admin",
@@ -41,6 +38,7 @@ export const router = createBrowserRouter([
           { path: "diaria-media", Component: DiariaMediaPage },
           { path: "consultar", Component: ConsultarPage },
           { path: "adicionar-pesquisa", Component: AdicionarPesquisaPage },
+          { path: "usuarios", Component: GerenciarUsuariosPage },
         ],
       },
     ],
@@ -61,6 +59,10 @@ export const router = createBrowserRouter([
   {
     path: "/pesquisa/:id",
     Component: PublicSurveyPage,
+  },
+  {
+    path: "/pesquisas-publicas",
+    Component: PublicSurveysListPage,
   },
   {
     path: "/dados-publicos",

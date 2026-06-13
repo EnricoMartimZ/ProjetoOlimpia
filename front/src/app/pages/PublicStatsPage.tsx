@@ -11,12 +11,12 @@ import { toSlug } from "../../lib/constants";
 import { kpiData, monthlyData, originData, occupancyByType } from "../data/mockData";
 
 const KPI_ICONS = [TrendingUp, Users, Star, Building2];
-const KPI_COLORS = ["#F5C100", "#00538C", "#009688", "#2E7D32"];
+const KPI_COLORS = ["#F5C944", "#00538C", "#009688", "#2E7D32"];
 
 const SATISFACAO_DATA = [
   { label: "Excelente (5)", value: 48, color: "#2E7D32" },
   { label: "Bom (4)", value: 31, color: "#009688" },
-  { label: "Regular (3)", value: 13, color: "#F5C100" },
+  { label: "Regular (3)", value: 13, color: "#F5C944" },
   { label: "Ruim (1-2)", value: 8, color: "#C8102E" },
 ];
 
@@ -32,11 +32,11 @@ export function PublicStatsPage() {
       style={{ backgroundColor: "#ffffff", fontFamily: "Inter, sans-serif" }}
     >
       {/* Header */}
-      <header style={{ backgroundColor: "#F5C100" }}>
+      <header style={{ backgroundColor: "#F5C944" }}>
         <div className="px-6 py-4 flex items-center justify-between max-w-6xl mx-auto">
           <OlimpiaLogo size="sm" variant="icon" />
           <div className="text-center flex-1 px-4">
-            <h1 style={{ fontWeight: 800, fontSize: 18, color: "#1B1D40" }}>
+            <h1 style={{ fontWeight: 800, fontSize: 18, color: "#1D2E36" }}>
               Painel de Dados do Turismo
             </h1>
             <p style={{ fontSize: 12, color: "#5A5A2A" }}>
@@ -46,7 +46,7 @@ export function PublicStatsPage() {
           <button
             onClick={() => navigate("/")}
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold"
-            style={{ backgroundColor: "#1B1D40", color: "white" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             <ArrowLeft size={13} />
             Voltar
@@ -58,7 +58,7 @@ export function PublicStatsPage() {
 
         {/* KPIs */}
         <section>
-          <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40", marginBottom: 12 }}>
+          <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36", marginBottom: 12 }}>
             Olímpia em Números — 2026
           </h2>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
@@ -84,7 +84,7 @@ export function PublicStatsPage() {
                       {kpi.change}
                     </span>
                   </div>
-                  <p style={{ fontSize: 24, fontWeight: 800, color: "#1B1D40", lineHeight: 1.2 }}>
+                  <p style={{ fontSize: 24, fontWeight: 800, color: "#1D2E36", lineHeight: 1.2 }}>
                     {kpi.value}
                   </p>
                   <p style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{kpi.label}</p>
@@ -101,7 +101,7 @@ export function PublicStatsPage() {
             className="lg:col-span-2 rounded-xl p-5 shadow-sm"
             style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
               Turistas Atendidos por Mês
             </h3>
             <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Jan – Mai 2026</p>
@@ -109,8 +109,8 @@ export function PublicStatsPage() {
               <AreaChart data={monthlyData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="pubGradT" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F5C100" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#F5C100" stopOpacity={0} />
+                    <stop offset="5%" stopColor="#F5C944" stopOpacity={0.35} />
+                    <stop offset="95%" stopColor="#F5C944" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="pubGradR" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="5%" stopColor="#00538C" stopOpacity={0.35} />
@@ -122,7 +122,7 @@ export function PublicStatsPage() {
                 <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} />
                 <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }} labelStyle={{ fontWeight: 600 }} />
                 <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Area type="monotone" dataKey="turistas" name="Turistas" stroke="#F5C100" strokeWidth={2} fill="url(#pubGradT)" />
+                <Area type="monotone" dataKey="turistas" name="Turistas" stroke="#F5C944" strokeWidth={2} fill="url(#pubGradT)" />
                 <Area type="monotone" dataKey="respostas" name="Respostas coletadas" stroke="#00538C" strokeWidth={2} fill="url(#pubGradR)" />
               </AreaChart>
             </ResponsiveContainer>
@@ -133,7 +133,7 @@ export function PublicStatsPage() {
             className="rounded-xl p-5 shadow-sm"
             style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
               Origem dos Visitantes
             </h3>
             <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>Por região de procedência</p>
@@ -154,7 +154,7 @@ export function PublicStatsPage() {
                     <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
                     <span style={{ color: "#374151" }}>{item.name}</span>
                   </div>
-                  <span style={{ fontWeight: 600, color: "#1B1D40" }}>{item.value}%</span>
+                  <span style={{ fontWeight: 600, color: "#1D2E36" }}>{item.value}%</span>
                 </div>
               ))}
             </div>
@@ -168,7 +168,7 @@ export function PublicStatsPage() {
             className="rounded-xl p-5 shadow-sm"
             style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
               Taxa de Ocupação por Tipo de Hospedagem
             </h3>
             <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Média do período (em %)</p>
@@ -180,7 +180,7 @@ export function PublicStatsPage() {
                 <Tooltip contentStyle={{ borderRadius: 8, border: "none" }} />
                 <Bar dataKey="ocupacao" name="Ocupação (%)" radius={[4, 4, 0, 0]}>
                   {occupancyByType.map((_, i) => (
-                    <Cell key={i} fill={i % 2 === 0 ? "#F5C100" : "#00538C"} />
+                    <Cell key={i} fill={i % 2 === 0 ? "#F5C944" : "#00538C"} />
                   ))}
                 </Bar>
               </BarChart>
@@ -192,7 +192,7 @@ export function PublicStatsPage() {
             className="rounded-xl p-5 shadow-sm"
             style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
           >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1B1D40", marginBottom: 4 }}>
+            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
               Satisfação dos Visitantes
             </h3>
             <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 16 }}>
@@ -203,7 +203,7 @@ export function PublicStatsPage() {
                 <div key={item.label}>
                   <div className="flex justify-between text-xs mb-1">
                     <span style={{ color: "#374151" }}>{item.label}</span>
-                    <span style={{ fontWeight: 600, color: "#1B1D40" }}>{item.value}%</span>
+                    <span style={{ fontWeight: 600, color: "#1D2E36" }}>{item.value}%</span>
                   </div>
                   <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#F0EDE8" }}>
                     <div
@@ -220,7 +220,7 @@ export function PublicStatsPage() {
             >
               <Star size={18} fill="#2E7D32" color="#2E7D32" />
               <div>
-                <p style={{ fontSize: 20, fontWeight: 800, color: "#1B1D40", lineHeight: 1 }}>4.3 / 5</p>
+                <p style={{ fontSize: 20, fontWeight: 800, color: "#1D2E36", lineHeight: 1 }}>4.3 / 5</p>
                 <p style={{ fontSize: 11, color: "#2E7D32" }}>Média geral de avaliação</p>
               </div>
             </div>
@@ -231,7 +231,7 @@ export function PublicStatsPage() {
         {activeResearches.length > 0 && (
           <section>
             <div className="mb-4">
-              <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1B1D40" }}>
+              <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>
                 Participe das Nossas Pesquisas
               </h2>
               <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
@@ -247,10 +247,10 @@ export function PublicStatsPage() {
                 >
                   <div
                     className="h-1.5"
-                    style={{ backgroundColor: ["#F5C100", "#00538C", "#009688", "#C8102E"][i % 4] }}
+                    style={{ backgroundColor: ["#F5C944", "#00538C", "#009688", "#C8102E"][i % 4] }}
                   />
                   <div className="p-4">
-                    <p style={{ fontSize: 14, fontWeight: 700, color: "#1B1D40", marginBottom: 4 }}>
+                    <p style={{ fontSize: 14, fontWeight: 700, color: "#1D2E36", marginBottom: 4 }}>
                       {r.nome}
                     </p>
                     <p style={{ fontSize: 12, color: "#6B7280", marginBottom: 12 }}>{r.descricao}</p>
@@ -259,7 +259,7 @@ export function PublicStatsPage() {
                       <button
                         onClick={() => navigate(`/pesquisa/${toSlug(r.nome)}`)}
                         className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                        style={{ backgroundColor: "#F5C100", color: "#1B1D40" }}
+                        style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
                       >
                         Responder
                         <ExternalLink size={11} />
@@ -275,9 +275,9 @@ export function PublicStatsPage() {
         {/* Info footer */}
         <div
           className="rounded-xl p-5 text-center"
-          style={{ backgroundColor: "#1B1D40" }}
+          style={{ backgroundColor: "#1D2E36" }}
         >
-          <p style={{ fontSize: 13, color: "#F5C100", fontWeight: 700, marginBottom: 4 }}>
+          <p style={{ fontSize: 13, color: "#F5C944", fontWeight: 700, marginBottom: 4 }}>
             Prefeitura da Estância Turística de Olímpia
           </p>
           <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>

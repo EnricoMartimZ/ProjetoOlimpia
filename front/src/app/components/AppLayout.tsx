@@ -3,6 +3,7 @@ import { Outlet, useNavigate, useLocation } from "react-router";
 import { User, LogOut, ChevronDown } from "lucide-react";
 import { OlimpiaLogo } from "./OlimpiaLogo";
 import { ColorStripe } from "./ColorStripe";
+import { useAuth } from "../context/AuthContext";
 
 interface NavItem {
   label: string;
@@ -17,6 +18,16 @@ interface AppLayoutProps {
   userEmail: string;
 }
 
+function cargoLabel(role: string | undefined): string {
+  const roles = role?.split(",") ?? [];
+  const isServidor = roles.includes("servidor");
+  const isPesquisador = roles.includes("pesquisador_campo");
+  if (isServidor && isPesquisador) return "Administrador e Pesquisador";
+  if (isServidor) return "Administrador";
+  if (isPesquisador) return "Pesquisador";
+  return "—";
+}
+
 export function AppLayout({
   navItems,
   homePath,
@@ -26,7 +37,9 @@ export function AppLayout({
 }: AppLayoutProps) {
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useAuth();
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const cargo = cargoLabel(user?.role);
 
   const isActive = (path: string) => {
     if (path === homePath) return location.pathname === homePath;
@@ -40,7 +53,7 @@ export function AppLayout({
     >
       <header
         className="flex items-center px-4 shadow-sm"
-        style={{ backgroundColor: "#F5C100", height: 56 }}
+        style={{ backgroundColor: "#F5C944", height: 56 }}
       >
         <button
           onClick={() => navigate(homePath)}
@@ -56,8 +69,8 @@ export function AppLayout({
               onClick={() => navigate(item.path)}
               className="px-4 py-1.5 rounded-lg text-sm font-semibold transition-all"
               style={{
-                color: isActive(item.path) ? "white" : "#1B1D40",
-                backgroundColor: isActive(item.path) ? "#1B1D40" : "transparent",
+                color: isActive(item.path) ? "white" : "#1D2E36",
+                backgroundColor: isActive(item.path) ? "#1D2E36" : "transparent",
                 fontFamily: "Inter, sans-serif",
               }}
             >
@@ -69,7 +82,7 @@ export function AppLayout({
         {roleBadge && (
           <span
             className="mr-4 px-3 py-1 rounded-full text-xs font-semibold"
-            style={{ backgroundColor: "#1B1D40", color: "#F5C100" }}
+            style={{ backgroundColor: "#1D2E36", color: "#F5C944" }}
           >
             {roleBadge}
           </span>
@@ -82,11 +95,11 @@ export function AppLayout({
           >
             <div
               className="w-9 h-9 rounded-full flex items-center justify-center"
-              style={{ backgroundColor: "#1B1D40" }}
+              style={{ backgroundColor: "#1D2E36" }}
             >
               <User size={18} color="white" />
             </div>
-            <ChevronDown size={14} color="#1B1D40" />
+            <ChevronDown size={14} color="#1D2E36" />
           </button>
 
           {userMenuOpen && (
@@ -94,9 +107,11 @@ export function AppLayout({
               className="absolute right-0 mt-2 w-44 rounded-xl shadow-lg py-1 z-50"
               style={{ backgroundColor: "white", border: "1px solid #eee" }}
             >
-              <div className="px-4 py-2 border-b border-gray-100">
-                <p className="text-xs font-semibold text-gray-800">{userName}</p>
-                <p className="text-xs text-gray-500">{userEmail}</p>
+              <div className="px-4 py-3 border-b border-gray-100">
+                <p style={{ fontSize: 11, color: "#9CA3AF", marginBottom: 1 }}>Usuário</p>
+                <p style={{ fontSize: 13, fontWeight: 700, color: "#1D2E36" }}>{userName}</p>
+                <p style={{ fontSize: 11, color: "#9CA3AF", marginTop: 6, marginBottom: 1 }}>Cargo</p>
+                <p style={{ fontSize: 12, fontWeight: 600, color: "#1D2E36" }}>{cargo}</p>
               </div>
               <button
                 onClick={() => navigate("/")}
