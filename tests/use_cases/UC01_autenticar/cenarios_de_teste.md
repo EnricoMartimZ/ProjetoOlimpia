@@ -5,11 +5,14 @@ Base: `POST /auth/login`. Reutiliza fixtures `client`, `servidor`, `pesquisador`
 | ID | Tipo | Título |
 |---|---|---|
 | UC01-CT01 | Principal | Login de servidor com credenciais válidas |
-| UC01-CT02 | Alternativo | Login de pesquisador de campo com credenciais válidas |
+| UC01-CT02 | Principal | Login de pesquisador de campo (mesmo fluxo, outro ator) |
 | UC01-CT03 | Exceção | E-mail inexistente |
 | UC01-CT04 | Exceção | Senha incorreta |
 | UC01-CT05 | Exceção | Payload incompleto/ inválido |
-| UC01-CT06 | Alternativo | Conteúdo do token (claims) |
+| UC01-CT06 | Principal | Conteúdo do token (claims gerados pelo fluxo principal) |
+
+> **Nota:** o fluxo alternativo A1 (validação da aba ADM/Pesquisador) é regra de UI do
+> frontend, sem cenário de teste de backend nesta camada.
 
 ---
 
@@ -21,7 +24,7 @@ Base: `POST /auth/login`. Reutiliza fixtures `client`, `servidor`, `pesquisador`
   - Status `200`.
   - Corpo contém `access_token` (string não vazia) e `token_type == "bearer"`.
 
-### UC01-CT02 — Login de pesquisador de campo (Alternativo)
+### UC01-CT02 — Login de pesquisador de campo (Principal — mesmo fluxo, outro ator)
 - **Pré-condições:** usuário `pesquisador_campo` cadastrado (`pesq@teste.com` / `senha123`).
 - **Passos:**
   1. `POST /auth/login` com as credenciais do pesquisador.
@@ -46,7 +49,7 @@ Base: `POST /auth/login`. Reutiliza fixtures `client`, `servidor`, `pesquisador`
   2. (variação) corpo vazio `{}`.
 - **Resultado esperado:** Status `422` (validação).
 
-### UC01-CT06 — Conteúdo do token (Alternativo)
+### UC01-CT06 — Conteúdo do token (Principal — verificação do artefato gerado)
 - **Pré-condições:** servidor logado (CT01).
 - **Passos:**
   1. Decodificar o `access_token` com a `SECRET_KEY` de teste.

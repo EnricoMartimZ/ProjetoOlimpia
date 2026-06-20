@@ -20,15 +20,16 @@
 ## 3. Fluxos
 
 ### Fluxo principal (caminho feliz)
-1. O ator envia `POST /auth/login` com `{ email, senha }`.
+> Vale igualmente para o **servidor** e o **pesquisador de campo** — o login é o mesmo para os dois atores; o papel só muda o **valor** do claim `role`, não os passos.
+
+1. O ator (servidor ou pesquisador) envia `POST /auth/login` com `{ email, senha }`.
 2. O sistema localiza o usuário pelo e-mail.
 3. O sistema verifica a senha contra o hash armazenado (`passlib`).
-4. O sistema gera um JWT assinado com `SECRET_KEY`, com claims `sub`, `nome`, `role`, `exp`.
+4. O sistema gera um JWT assinado com `SECRET_KEY`, com claims `sub`, `nome`, `role` (o papel do usuário) e `exp`.
 5. O sistema responde `200` com `{ access_token, token_type: "bearer" }`.
 
 ### Fluxos alternativos
-- **A1 — Login de pesquisador de campo:** idêntico ao principal; o claim `role` no token é `pesquisador_campo`, habilitando as rotas `/pesquisador/*` e barrando as de `servidor`.
-- **A2 — Validação da aba no frontend:** a UI valida a aba selecionada (ADM/Pesquisador) contra o `role` do token; login na aba errada é recusado pelo frontend (regra de UI, não do backend).
+- **A1 — Validação da aba no frontend:** a UI valida a aba selecionada (ADM/Pesquisador) contra o `role` do token; login na aba errada é recusado pelo frontend (regra de UI, não do backend).
 
 ### Fluxos de exceção
 - **E1 — E-mail inexistente:** não há usuário com aquele e-mail → `401` (credenciais inválidas), sem distinguir de senha errada.
@@ -38,6 +39,6 @@
 ## 4. Regras de negócio
 
 - **RN01:** A resposta de erro de credenciais é genérica (`401`) — não revela se o e-mail existe.
-- **RN02:** O token carrega o `role` do usuário, que determina a autorização nas demais rotas (`require_servidor`, `require_pesquisador`).
+- **RN02:** O claim `role` do token **deriva do papel do usuário cadastrado** (`servidor` ou `pesquisador_campo`) e determina a autorização nas demais rotas (`require_servidor`, `require_pesquisador`). O fluxo de login é idêntico para ambos — o papel é dado, não caminho.
 - **RN03:** O token tem expiração (`exp`); após expirar, exige novo login.
 - **RN04:** A senha nunca é armazenada nem retornada em texto puro — apenas o hash é persistido.

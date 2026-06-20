@@ -3,10 +3,6 @@
 Esta pasta documenta os **casos de uso** do Sistema de Gestão de Pesquisas para o
 Turismo de Olímpia e os **cenários de teste** derivados de cada um.
 
-Cada caso de uso corresponde a uma funcionalidade implementada no backend
-(ver `backend/docs/api.md` e `backend/docs/arquitetura-backend.md`). Os
-requisitos de origem estão em `/requisitos.md` (raiz do projeto).
-
 ## Estrutura de cada pasta
 
 ```
@@ -29,15 +25,6 @@ UCxx_nome/
 | [UC08 — Gerenciar hospedagens](UC08_gerenciar_hospedagens/caso_de_uso.md) | REQ 7 | Servidor da Secretaria | CRUD `/hospedagens` |
 | [UC09 — Registrar diária média](UC09_registrar_diaria/caso_de_uso.md) | REQ 7 | Servidor da Secretaria | `/diarias` · `/diarias/pendentes` |
 
-> **Não cobertos** (não implementados — ver `/requisitos.md`): REQ 12 (página
+> **Não cobertos** (Os que ainda não foram implementados — ver `/requisitos.md`): REQ 12 (página
 > pública de resultados) e REQ 13 (relatórios em PDF).
 
-## Convenções dos cenários
-
-- Os cenários estão prontos para virar testes **pytest** contra **SQLite em
-  memória** (ver `conftest.py` no histórico do repositório), reutilizando as
-  fixtures `client`, `servidor` e `pesquisador`.
-- Cada cenário tem um **ID** (`UCxx-CTnn`), tipo de fluxo (Principal /
-  Alternativo / Exceção), pré-condições, passos e resultado esperado
-  (incl. status HTTP).
-- Os status HTTP e formatos seguem `backend/docs/api.md` (fiel ao código).

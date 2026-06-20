@@ -75,7 +75,7 @@ CENARIOS = [
     # UC01
     ("UC01-CT01", "UC01", "Principal", "Login de servidor com credenciais válidas",
      "Servidor cadastrado", "POST /auth/login com email+senha válidos", "200; access_token + token_type=bearer"),
-    ("UC01-CT02", "UC01", "Alternativo", "Login de pesquisador de campo",
+    ("UC01-CT02", "UC01", "Principal", "Login de pesquisador (mesmo fluxo, outro ator)",
      "Pesquisador cadastrado", "POST /auth/login com credenciais do pesquisador", "200; token com role=pesquisador_campo"),
     ("UC01-CT03", "UC01", "Exceção", "E-mail inexistente",
      "—", "POST /auth/login com e-mail não cadastrado", "401 (credenciais inválidas, genérico)"),
@@ -83,7 +83,7 @@ CENARIOS = [
      "Servidor cadastrado", "POST /auth/login com senha errada", "401; idêntico a e-mail inexistente"),
     ("UC01-CT05", "UC01", "Exceção", "Payload incompleto/inválido",
      "—", "POST /auth/login sem senha / corpo vazio", "422"),
-    ("UC01-CT06", "UC01", "Alternativo", "Conteúdo do token (claims)",
+    ("UC01-CT06", "UC01", "Principal", "Conteúdo do token (claims do fluxo principal)",
      "Servidor logado", "Decodificar access_token", "Claims sub, nome, role=servidor, exp futuro"),
     # UC02
     ("UC02-CT01", "UC02", "Principal", "Cadastrar servidor com dados válidos",
@@ -294,8 +294,8 @@ def aplica_bordas_zebra(ws, first_row, last_row, ncols, zebra=True):
 
 # Fluxos resumidos por caso (principal / alternativos / exceção)
 FLUXOS = {
-    "UC01": ("Envia credenciais; valida usuário/senha; gera JWT; retorna 200.",
-             "A1 pesquisador (role no token); A2 validação de aba no front.",
+    "UC01": ("Servidor OU pesquisador envia credenciais; valida usuário/senha; gera JWT (role = papel do usuário); 200.",
+             "A1 validação da aba ADM/Pesquisador no frontend (regra de UI).",
              "E1 e-mail inexistente 401; E2 senha errada 401; E3 payload inválido 422."),
     "UC02": ("Envia dados; valida; checa e-mail; hasheia senha; persiste; 201.",
              "A1 múltiplos papéis (dedup); A2 cadastrar pesquisador.",
