@@ -74,7 +74,7 @@ Base URL local: `http://localhost:8000`. Referência detalhada (request/response
 ## Estrutura e contexto
 
 - Contexto do projeto e regras do time: [`CLAUDE.md`](CLAUDE.md)
-- Modelo do banco: [`backend/docs/modelo-banco.md`](backend/docs/modelo-banco.md)
+- Referência da API: [`backend/docs/api.md`](backend/docs/api.md)
 - Requisitos: [`backend/docs/requisitos.md`](backend/docs/requisitos.md)
 - Arquitetura do backend: [`backend/docs/arquitetura-backend.md`](backend/docs/arquitetura-backend.md)
 - Sequência de tarefas: [`TASKS.md`](TASKS.md)

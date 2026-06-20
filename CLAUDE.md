@@ -1,4 +1,4 @@
-# CLAUDE.md — Projeto Olímpia (MERX)
+# CLAUDE.md — Projeto Olímpia
 
 Arquivo de contexto para o Claude Code. Leia antes de qualquer ação no repositório.
 
@@ -27,6 +27,10 @@ ProjetoOlimpia/
 ├── README.md
 ├── architecture_modeling/       # Arquivos de modelagem (draw.io, xlsx)
 ├── schema/                      # Schema SQL gerado
+├── tests/                       # Testes do sistema (raiz — não só do backend)
+│   ├── use_cases/               # Casos de uso + cenários + casos_de_uso.xlsx
+│   ├── conftest.py              # Fixtures pytest (SQLite em memória)
+│   └── test_*.py                # Testes automatizados (unit + integração)
 ├── front/                       # Aplicação React
 │   ├── .env.local               # NÃO sobe no git (VITE_API_URL)
 │   ├── src/
@@ -56,9 +60,8 @@ ProjetoOlimpia/
     │   ├── schemas/             # Validação entrada/saída (Pydantic)
     │   ├── routers/             # Endpoints — auth, usuarios, pesquisas, edicoes, publico, respostas, pesquisador
     │   └── services/            # Lógica de negócio — edicao.py, resposta.py, auth.py
-    ├── tests/                   # pytest (SQLite em memória) — conftest + unit + integração
     ├── docs/
-    │   ├── modelo-banco.md      # Resumo do DER
+    │   ├── api.md               # Referência das rotas (request/response)
     │   ├── requisitos.md        # Requisitos do sistema
     │   └── arquitetura-backend.md
     ├── requirements.txt
@@ -185,22 +188,34 @@ Raiz: `App.tsx` → `AuthProvider` > `AppStoreProvider` > `RouterProvider`. Guar
 
 **`services/api.ts`** centraliza as chamadas. Helper `request()` injeta `Authorization: Bearer` automático. Funções: `login`, `cadastrar`, `getPesquisas`/`getPesquisa`/`createPesquisa`/`updatePesquisa`/`deletePesquisa` (incluem `tipo`), `getEdicoes`/`launchEdicao`, `getPublicEdicao`, `submitResposta`, `getRespostas`/`deleteResposta`, e o fluxo de campo `getEdicoesCampo`/`getEdicaoCampoForm`/`submitRespostaCampo`.
 
-## Testes (backend)
+## Testes
 
-Testes em `backend/tests/` com **pytest**. Rodam contra **SQLite em memória** (não tocam o Neon).
-Para isso, `Campo.opcoes` usa `ARRAY(String).with_variant(JSON, "sqlite")` — mesmo schema nos dois bancos.
+A pasta `tests/` fica na **raiz do projeto** (compartilhada — cobre o sistema todo, não só o backend).
+
+### Casos de uso e cenários — `tests/use_cases/`
+
+Documentação dos casos de uso (1 por funcionalidade/requisito) e cenários de teste derivados,
+servindo de base para os testes automatizados. Cada caso tem sua pasta com `caso_de_uso.md`
+(identificação, condições, fluxos, regras de negócio) e `cenarios_de_teste.md`. Há ainda
+`casos_de_uso.xlsx` (síntese em planilha) gerado por `_gerar_planilha.py`. Índice em `tests/use_cases/README.md`.
+
+### Testes automatizados (backend) — **pytest**
+
+Rodam contra **SQLite em memória** (não tocam o Neon). Para isso, `Campo.opcoes` usa
+`ARRAY(String).with_variant(JSON, "sqlite")` — mesmo schema nos dois bancos. Como o `conftest`
+importa `app.*`, rode com o `backend` no `PYTHONPATH`:
 
 ```bash
 cd backend
 source venv/bin/activate
-pip install -r requirements-dev.txt   # pytest + httpx (deps só de teste)
-pytest tests/                          # 45 testes (unit + integração)
+pip install -r requirements-dev.txt        # pytest + httpx (deps só de teste)
+PYTHONPATH=. pytest ../tests/              # unit + integração
 ```
 
-- `tests/conftest.py` — engine SQLite (StaticPool), override de `get_db`, fixtures `client`, `servidor`, `pesquisador`.
-- `tests/test_unit.py` — validações de schema (`tipo`), helpers de status/tipo de edição, dependências de acesso, token JWT.
-- `tests/test_pesquisas_campo.py` — integração: criar pesquisa de campo, authz (`pesquisador_campo` vs `servidor` vs anônimo), resposta vinculada ao pesquisador + edição, bloqueio do fluxo público para campo, nome do coletor na consulta.
-- `tests/test_diaria_media.py` — integração REQ 6: CRUD de hospedagem (authz, CNPJ duplicado, estrelas inválidas, cascata), registro de diária (unicidade hospedagem+data, preço negativo, filtros) e pendentes por data.
+- `conftest.py` — engine SQLite (StaticPool), override de `get_db`, fixtures `client`, `servidor`, `pesquisador`.
+- `test_unit.py` — validações de schema (`tipo`), helpers de status/tipo de edição, dependências de acesso, token JWT.
+- `test_pesquisas_campo.py` — integração: criar pesquisa de campo, authz (`pesquisador_campo` vs `servidor` vs anônimo), resposta vinculada ao pesquisador + edição, bloqueio do fluxo público para campo, nome do coletor na consulta.
+- `test_diaria_media.py` — integração REQ 6: CRUD de hospedagem (authz, CNPJ duplicado, estrelas inválidas, cascata), registro de diária (unicidade hospedagem+data, preço negativo, filtros) e pendentes por data.
 
 ## Regras do time
 
@@ -232,7 +247,6 @@ A fonte da verdade é a tabela de endpoints neste arquivo + `backend/docs/api.md
 ## Documentação interna
 
 - Referência da API atual → `backend/docs/api.md`
-- Modelo do banco → `backend/docs/modelo-banco.md`
 - Requisitos do sistema → `backend/docs/requisitos.md`
 - Arquitetura e divisão do time → `backend/docs/arquitetura-backend.md`
 - Arquivos de modelagem originais → `architecture_modeling/`
