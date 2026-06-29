@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router";
-import { ChevronLeft, ChevronRight, CheckCircle, Loader2, AlertTriangle, AlertCircle } from "lucide-react";
+import { ChevronLeft, ChevronRight, CheckCircle, Loader2, AlertTriangle, AlertCircle, Lock } from "lucide-react";
 import { ColorStripe } from "../components/ColorStripe";
 import { OlimpiaLogo } from "../components/OlimpiaLogo";
 import { getPublicEdicao, submitResposta, type PublicEdicaoAPI } from "../../services/api";
+import { isPublico } from "../data/pesquisasPublicas";
 import type { Field } from "../../types";
 
 // Converte os campos vindos da API para o formato que o formulário usa
@@ -24,6 +25,7 @@ export function PublicSurveyPage() {
   const [edicao, setEdicao] = useState<PublicEdicaoAPI | null>(null);
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
+  const [hidden, setHidden] = useState(false);
 
   const [started, setStarted] = useState(false);
   const [step, setStep] = useState(0);
@@ -45,8 +47,14 @@ export function PublicSurveyPage() {
     getPublicEdicao(edicaoId)
       .then((data) => {
         if (!ativo) return;
-        setEdicao(data);
-        setNotFound(false);
+        // Bloqueia não-logados se a pesquisa não estiver publicada no painel
+        const logado = !!localStorage.getItem("token");
+        if (!logado && !isPublico(data.pesquisa_id)) {
+          setHidden(true);
+        } else {
+          setEdicao(data);
+          setNotFound(false);
+        }
       })
       .catch(() => {
         if (!ativo) return;
@@ -106,6 +114,39 @@ export function PublicSurveyPage() {
           <Loader2 size={18} className="animate-spin" />
           <span style={{ fontSize: 14 }}>Carregando pesquisa...</span>
         </div>
+      </div>
+    );
+  }
+
+  if (hidden) {
+    return (
+      <div
+        className="min-h-screen flex flex-col items-center justify-center gap-6 p-6"
+        style={{ backgroundColor: "#ffffff", fontFamily: "Inter, sans-serif" }}
+      >
+        <OlimpiaLogo size="md" variant="full" />
+        <div
+          className="rounded-2xl shadow-xl p-8 w-full max-w-md text-center"
+          style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
+        >
+          <div className="p-4 rounded-full inline-block mb-4" style={{ backgroundColor: "#F0EDE8" }}>
+            <Lock size={40} color="#1D2E36" />
+          </div>
+          <h2 style={{ fontWeight: 700, fontSize: 22, color: "#1D2E36" }}>
+            Pesquisa não disponível
+          </h2>
+          <p style={{ fontSize: 14, color: "#6B7280", marginTop: 8, marginBottom: 20 }}>
+            Esta pesquisa não está aberta para respostas no momento. Entre em contato com a Secretaria de Turismo de Olímpia para mais informações.
+          </p>
+          <button
+            onClick={() => navigate("/")}
+            className="w-full py-3 rounded-xl text-sm font-semibold"
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
+          >
+            Voltar ao início
+          </button>
+        </div>
+        <ColorStripe orientation="horizontal" className="fixed bottom-0 left-0 right-0" />
       </div>
     );
   }

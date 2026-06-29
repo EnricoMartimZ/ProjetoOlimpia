@@ -26,7 +26,13 @@ async function request<T>(
 
   if (!res.ok) {
     const err = await res.json().catch(() => ({}));
-    throw new Error((err as { detail?: string }).detail ?? `Erro ${res.status}`);
+    const raw = (err as { detail?: unknown }).detail;
+    const msg = typeof raw === "string"
+      ? raw
+      : Array.isArray(raw)
+        ? (raw as Array<{ msg?: string }>).map(v => v.msg ?? String(v)).join("; ")
+        : `Erro ${res.status}`;
+    throw new Error(msg);
   }
 
   // 204 No Content não tem body
@@ -198,6 +204,20 @@ export interface EdicaoAPI {
 
 export async function getEdicoes(pesquisaId: number): Promise<EdicaoAPI[]> {
   return request<EdicaoAPI[]>(`/pesquisas/${pesquisaId}/edicoes`);
+}
+
+export async function updateEdicaoStatus(
+  edicaoId: number,
+  acao: "ativar" | "encerrar",
+): Promise<EdicaoAPI> {
+  return request<EdicaoAPI>(`/edicoes/${edicaoId}/status`, {
+    method: "POST",
+    body: JSON.stringify({ acao }),
+  });
+}
+
+export async function deleteEdicao(id: number): Promise<void> {
+  return request<void>(`/edicoes/${id}`, { method: "DELETE" });
 }
 
 export async function launchEdicao(

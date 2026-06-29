@@ -5,6 +5,7 @@ Cada edição gera um link público (`/pesquisa/{edicaoId}`) e pode ter campos
 extras próprios, além dos campos fixos herdados da pesquisa.
 """
 
+from datetime import date, timedelta
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -16,7 +17,7 @@ from app.dependencies import require_servidor
 from app.models.edicao import Edicao
 from app.models.pesquisa import Campo, Pesquisa
 from app.models.usuario import Usuario
-from app.schemas.edicao import EdicaoCreate, EdicaoOut
+from app.schemas.edicao import EdicaoCreate, EdicaoOut, EdicaoStatusUpdate
 from app.schemas.pesquisa import CampoOut
 from app.services.edicao import (
     campos_combinados,
@@ -119,6 +120,22 @@ def lancar_edicao(
             edicao_id=edicao.id,
         ))
 
+    # Se a nova edição já começa hoje/antes (ficará ativa), encerra outras edições ativas
+    nova_ativa = dados.data_abertura <= date.today() and (
+        dados.data_fechamento is None or dados.data_fechamento >= date.today()
+    )
+    if nova_ativa:
+        ontem = date.today() - timedelta(days=1)
+        outras = db.scalars(
+            select(Edicao).where(
+                Edicao.pesquisa_id == pesquisa_id,
+                Edicao.id != edicao.id,
+            )
+        ).all()
+        for outra in outras:
+            if status_edicao(outra) == "ativa":
+                outra.data_fechamento = ontem
+
     db.commit()
     db.refresh(edicao)
     # Recarrega com a pesquisa para o nome
@@ -126,6 +143,83 @@ def lancar_edicao(
         select(Edicao).where(Edicao.id == edicao.id).options(selectinload(Edicao.pesquisa))
     ).first()
     return _edicao_out(db, edicao)
+
+
+@router.post(
+    "/edicoes/{edicao_id}/status",
+    response_model=EdicaoOut,
+    summary="Alterar status de uma edição",
+    description=(
+        "Ativa ou encerra uma edição ajustando suas datas. "
+        "Ao ativar, quaisquer outras edições ativas da mesma pesquisa são encerradas automaticamente."
+    ),
+    responses={
+        403: {"description": "Apenas servidores podem alterar edições."},
+        404: {"description": "Edição não encontrada."},
+    },
+)
+def atualizar_status_edicao(
+    edicao_id: int,
+    body: EdicaoStatusUpdate,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(require_servidor),
+):
+    edicao = db.scalars(
+        select(Edicao).where(Edicao.id == edicao_id).options(selectinload(Edicao.pesquisa))
+    ).first()
+    if not edicao:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Edição não encontrada.")
+
+    ontem = date.today() - timedelta(days=1)
+
+    if body.acao == "encerrar":
+        # Garante data_fechamento no passado para status = "encerrada"
+        edicao.data_fechamento = ontem
+
+    elif body.acao == "ativar":
+        # Move data_abertura para hoje se ainda estava no futuro
+        if edicao.data_abertura > date.today():
+            edicao.data_abertura = date.today()
+        # Remove fechamento para ficar "ativa"
+        edicao.data_fechamento = None
+        # Encerra outras edições ativas da mesma pesquisa
+        outras = db.scalars(
+            select(Edicao).where(
+                Edicao.pesquisa_id == edicao.pesquisa_id,
+                Edicao.id != edicao_id,
+            )
+        ).all()
+        for outra in outras:
+            if status_edicao(outra) == "ativa":
+                outra.data_fechamento = ontem
+
+    db.commit()
+    db.refresh(edicao)
+    edicao = db.scalars(
+        select(Edicao).where(Edicao.id == edicao_id).options(selectinload(Edicao.pesquisa))
+    ).first()
+    return _edicao_out(db, edicao)
+
+
+@router.delete(
+    "/edicoes/{edicao_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    summary="Excluir edição",
+    responses={
+        403: {"description": "Apenas servidores podem excluir edições."},
+        404: {"description": "Edição não encontrada."},
+    },
+)
+def excluir_edicao(
+    edicao_id: int,
+    db: Session = Depends(get_db),
+    _: Usuario = Depends(require_servidor),
+):
+    edicao = db.get(Edicao, edicao_id)
+    if not edicao:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Edição não encontrada.")
+    db.delete(edicao)
+    db.commit()
 
 
 @router.get(

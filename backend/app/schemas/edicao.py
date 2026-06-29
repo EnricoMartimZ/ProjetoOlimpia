@@ -1,5 +1,5 @@
 from datetime import date, datetime
-from typing import List, Optional
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel
 
@@ -27,6 +27,11 @@ class EdicaoOut(BaseModel):
     criado_em: datetime
     total_respostas: int
     status: str  # "agendada" | "ativa" | "encerrada"
+
+
+class EdicaoStatusUpdate(BaseModel):
+    """Altera o status de uma edição ajustando as datas."""
+    acao: Literal["ativar", "encerrar"]
 
 
 class PublicEdicaoOut(BaseModel):

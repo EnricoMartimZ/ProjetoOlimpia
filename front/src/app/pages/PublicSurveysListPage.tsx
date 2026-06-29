@@ -4,6 +4,7 @@ import { ArrowLeft, ClipboardList, Loader2, ExternalLink, Search } from "lucide-
 import { OlimpiaLogo } from "../components/OlimpiaLogo";
 import { ColorStripe } from "../components/ColorStripe";
 import { getPesquisas, type PesquisaListItem } from "../../services/api";
+import { isPublico } from "../data/pesquisasPublicas";
 
 const ACCENT_COLORS = ["#F5C944", "#00538C", "#009688", "#C8102E"];
 
@@ -17,7 +18,11 @@ export function PublicSurveysListPage() {
     getPesquisas()
       .then((data) => {
         const disponiveis = data.filter(
-          (p) => p.tipo === "publica" && p.status === "ativa" && p.edicao_atual_id !== null
+          (p) =>
+            p.tipo === "publica" &&
+            p.status === "ativa" &&
+            p.edicao_atual_id !== null &&
+            isPublico(p.id)
         );
         setPesquisas(disponiveis);
       })
@@ -88,9 +93,6 @@ export function PublicSurveysListPage() {
 
         {!loading && !erro && pesquisas.length > 0 && (
           <>
-            <p style={{ fontSize: 13, color: "#6B7280", marginBottom: 20 }}>
-              {pesquisas.length} {pesquisas.length === 1 ? "pesquisa disponível" : "pesquisas disponíveis"} para você responder gratuitamente.
-            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {pesquisas.map((p, i) => (
                 <div

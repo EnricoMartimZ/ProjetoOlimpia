@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import {
-  Search, Download, Plus, Trash2, ChevronLeft, ChevronRight,
-  X, CheckCircle, Loader2, AlertCircle,
+  Search, Download, Plus, Trash2, Pencil, ChevronLeft, ChevronRight,
+  X, CheckCircle, Loader2, AlertCircle, Info,
 } from "lucide-react";
 import {
   getPesquisas,
@@ -18,6 +18,70 @@ import {
 } from "../../../services/api";
 
 const PER_PAGE = 10;
+
+// Tooltip estilizado para headers de coluna
+// Usa position:fixed + getBoundingClientRect para não ser cortado pelo overflow da tabela
+function ColHeaderTooltip({ text }: { text: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const [pos, setPos] = useState<{ x: number; y: number } | null>(null);
+
+  const handleEnter = () => {
+    const r = ref.current?.getBoundingClientRect();
+    if (r) setPos({ x: r.left + r.width / 2, y: r.top });
+  };
+
+  return (
+    <span
+      ref={ref}
+      className="shrink-0 cursor-help inline-flex"
+      onMouseEnter={handleEnter}
+      onMouseLeave={() => setPos(null)}
+    >
+      <Info size={11} style={{ color: "rgba(255,255,255,0.6)" }} />
+      {pos && (
+        <span
+          style={{
+            position: "fixed",
+            left: pos.x,
+            top: pos.y - 10,
+            transform: "translate(-50%, -100%)",
+            backgroundColor: "#1D2E36",
+            color: "white",
+            padding: "8px 12px",
+            borderRadius: 8,
+            fontSize: 12,
+            lineHeight: 1.5,
+            maxWidth: 280,
+            width: "max-content",
+            zIndex: 9999,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.35)",
+            pointerEvents: "none",
+            whiteSpace: "normal",
+            border: "1px solid rgba(255,255,255,0.12)",
+          }}
+        >
+          {text}
+          <span style={{
+            position: "absolute",
+            top: "100%",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: 0, height: 0,
+            borderLeft: "6px solid transparent",
+            borderRight: "6px solid transparent",
+            borderTop: "6px solid #1D2E36",
+          }} />
+        </span>
+      )}
+    </span>
+  );
+}
+
+const ROW_COLORS = [
+  "#FFFBEB", "#EBF5FB", "#EAFAF1", "#FEF0F0",
+  "#F0FDFA", "#FFF3E0", "#F3E5F5", "#FCE4EC",
+  "#E8F5E9", "#E3F2FD",
+];
 
 function formatTimestamp(iso: string): string {
   const d = new Date(iso);
@@ -42,11 +106,14 @@ export function ConsultarPage() {
   // Modais
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [newRowModal, setNewRowModal] = useState(false);
 
-  // Campos completos (com opções) para o formulário de novo registro
+  // Modal unificado: novo registro + edição
+  const [rowModal, setRowModal] = useState(false);
+  const [editingRowId, setEditingRowId] = useState<number | null>(null); // null = novo
+
+  // Campos completos (com opções) para o formulário
   const [edicaoCampos, setEdicaoCampos] = useState<PublicEdicaoAPI["campos"]>([]);
-  const [newRow, setNewRow] = useState<Record<number, string>>({});
+  const [modalValues, setModalValues] = useState<Record<number, string>>({});
   const [savingRow, setSavingRow] = useState(false);
   const [rowError, setRowError] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
@@ -153,23 +220,35 @@ export function ConsultarPage() {
   };
 
   const openNewRow = () => {
-    setNewRow({});
+    setEditingRowId(null);
+    setModalValues({});
     setRowError(null);
-    setNewRowModal(true);
+    setRowModal(true);
   };
 
-  const handleAddRow = async () => {
+  const openEditRow = (row: import("../../../services/api").RespostaLinha) => {
+    const prefilled: Record<number, string> = {};
+    tabela?.campos_header.forEach((c) => {
+      const v = row.valores[String(c.id)];
+      if (v !== undefined) prefilled[c.id] = v;
+    });
+    setEditingRowId(row.resposta_id);
+    setModalValues(prefilled);
+    setRowError(null);
+    setRowModal(true);
+  };
+
+  const handleSaveRow = async () => {
     if (selectedEdicao === "") return;
     const respostas = edicaoCampos
-      .filter((c) => newRow[c.id] !== undefined && newRow[c.id] !== "")
-      .map((c) => ({ campo_id: c.id, atributo_texto: String(newRow[c.id]) }));
+      .filter((c) => modalValues[c.id] !== undefined && modalValues[c.id] !== "")
+      .map((c) => ({ campo_id: c.id, atributo_texto: String(modalValues[c.id]) }));
 
     if (respostas.length === 0) {
       setRowError("Preencha ao menos um campo.");
       return;
     }
-    // Valida obrigatórios
-    const faltando = edicaoCampos.find((c) => c.obrigatorio && !newRow[c.id]);
+    const faltando = edicaoCampos.find((c) => c.obrigatorio && !modalValues[c.id]);
     if (faltando) {
       setRowError(`O campo "${faltando.texto_pergunta}" é obrigatório.`);
       return;
@@ -178,12 +257,16 @@ export function ConsultarPage() {
     setSavingRow(true);
     setRowError(null);
     try {
+      // Submete os novos valores primeiro; só deleta o antigo se der certo
       await submitResposta(selectedEdicao, respostas);
-      setNewRowModal(false);
-      setPage(1);
+      if (editingRowId !== null) {
+        await deleteResposta(selectedEdicao, editingRowId);
+      }
+      setRowModal(false);
+      if (editingRowId === null) setPage(1);
       fetchRespostas();
     } catch (e) {
-      setRowError(e instanceof Error ? e.message : "Erro ao adicionar registro.");
+      setRowError(e instanceof Error ? e.message : "Erro ao salvar registro.");
     } finally {
       setSavingRow(false);
     }
@@ -305,7 +388,7 @@ export function ConsultarPage() {
             style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             {exporting ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-            Exportar CSV
+            Exportar planilha
           </button>
         </div>
       </div>
@@ -365,8 +448,13 @@ export function ConsultarPage() {
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Data/Hora</th>
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Coletado por</th>
                 {header.map((c) => (
-                  <th key={c.id} className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>
-                    {c.texto_pergunta}
+                  <th key={c.id} className="px-4 py-3 text-left" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>
+                    <div className="flex items-center gap-1.5" style={{ maxWidth: 160 }}>
+                      <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", flex: 1 }}>
+                        {c.texto_pergunta}
+                      </span>
+                      <ColHeaderTooltip text={c.texto_pergunta} />
+                    </div>
                   </th>
                 ))}
                 <th className="px-4 py-3 text-left whitespace-nowrap" style={{ fontSize: 11, fontWeight: 600, color: "white" }}>Ações</th>
@@ -388,7 +476,7 @@ export function ConsultarPage() {
                 </tr>
               ) : (
                 tabela.dados.map((r, i) => (
-                  <tr key={r.resposta_id} style={{ backgroundColor: i % 2 === 0 ? "white" : "#FAFAFA" }}>
+                  <tr key={r.resposta_id} style={{ backgroundColor: ROW_COLORS[i % ROW_COLORS.length] }}>
                     <td className="px-4 py-3 text-xs font-mono" style={{ color: "#6B7280" }}>
                       #{r.resposta_id.toString().padStart(4, "0")}
                     </td>
@@ -402,15 +490,41 @@ export function ConsultarPage() {
                         <span style={{ color: "#9CA3AF" }}>Público / anônimo</span>
                       )}
                     </td>
-                    {header.map((c) => (
-                      <td key={c.id} className="px-4 py-3 text-xs" style={{ color: "#374151" }}>
-                        {r.valores[String(c.id)] ?? <span style={{ color: "#D1D5DB" }}>—</span>}
-                      </td>
-                    ))}
+                    {header.map((c) => {
+                      const val = r.valores[String(c.id)];
+                      return (
+                        <td key={c.id} className="px-4 py-3 text-xs" style={{ color: "#374151" }}>
+                          {val !== undefined && val !== null ? (
+                            <div
+                              title={val}
+                              style={{ maxWidth: 160, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}
+                            >
+                              {val}
+                            </div>
+                          ) : (
+                            <span style={{ color: "#D1D5DB" }}>—</span>
+                          )}
+                        </td>
+                      );
+                    })}
                     <td className="px-4 py-3">
-                      <button onClick={() => setConfirmDelete(r.resposta_id)} className="text-red-400 hover:text-red-600">
-                        <Trash2 size={13} />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => openEditRow(r)}
+                          title="Editar registro"
+                          className="hover:opacity-70"
+                          style={{ color: "#00538C" }}
+                        >
+                          <Pencil size={13} />
+                        </button>
+                        <button
+                          onClick={() => setConfirmDelete(r.resposta_id)}
+                          title="Excluir registro"
+                          className="text-red-400 hover:text-red-600"
+                        >
+                          <Trash2 size={13} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -479,18 +593,25 @@ export function ConsultarPage() {
         </div>
       )}
 
-      {/* Novo registro (dinâmico a partir dos campos da edição) */}
-      {newRowModal && (
+      {/* Modal unificado: novo registro / edição */}
+      {rowModal && (
         <div className="fixed inset-0 flex items-center justify-center z-50" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}>
           <div className="w-full max-w-lg mx-4 rounded-2xl shadow-2xl overflow-hidden" style={{ backgroundColor: "white" }}>
             <div className="flex items-center justify-between px-6 py-4" style={{ backgroundColor: "#F5C944" }}>
               <div>
-                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>Novo Registro</h2>
+                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>
+                  {editingRowId !== null ? "Editar Registro" : "Novo Registro"}
+                </h2>
                 <p style={{ fontSize: 12, color: "#5A5A2A" }}>
                   {pesquisaAtual?.nome} — {edicaoAtual?.numero_edicao}ª edição
+                  {editingRowId !== null && (
+                    <span style={{ marginLeft: 6, opacity: 0.7 }}>
+                      · #{editingRowId.toString().padStart(4, "0")}
+                    </span>
+                  )}
                 </p>
               </div>
-              <button onClick={() => setNewRowModal(false)}>
+              <button onClick={() => setRowModal(false)}>
                 <X size={20} color="#1D2E36" />
               </button>
             </div>
@@ -504,16 +625,16 @@ export function ConsultarPage() {
                   {(c.tipo === "texto" || c.tipo === "numero" || c.tipo === "data" || c.tipo === "texto_longo") && (
                     <input
                       type={c.tipo === "numero" ? "number" : c.tipo === "data" ? "date" : "text"}
-                      value={newRow[c.id] ?? ""}
-                      onChange={(e) => setNewRow({ ...newRow, [c.id]: e.target.value })}
+                      value={modalValues[c.id] ?? ""}
+                      onChange={(e) => setModalValues({ ...modalValues, [c.id]: e.target.value })}
                       className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
                       style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9" }}
                     />
                   )}
                   {c.tipo === "multipla_escolha" && (
                     <select
-                      value={newRow[c.id] ?? ""}
-                      onChange={(e) => setNewRow({ ...newRow, [c.id]: e.target.value })}
+                      value={modalValues[c.id] ?? ""}
+                      onChange={(e) => setModalValues({ ...modalValues, [c.id]: e.target.value })}
                       className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
                       style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                     >
@@ -523,8 +644,8 @@ export function ConsultarPage() {
                   )}
                   {c.tipo === "sim_nao" && (
                     <select
-                      value={newRow[c.id] ?? ""}
-                      onChange={(e) => setNewRow({ ...newRow, [c.id]: e.target.value })}
+                      value={modalValues[c.id] ?? ""}
+                      onChange={(e) => setModalValues({ ...modalValues, [c.id]: e.target.value })}
                       className="w-full mt-1 px-3 py-2 rounded-lg text-sm outline-none"
                       style={{ border: "1px solid #E5E7EB", backgroundColor: "#F9F9F9", color: "#1D2E36" }}
                     >
@@ -539,12 +660,12 @@ export function ConsultarPage() {
                         <button
                           key={v}
                           type="button"
-                          onClick={() => setNewRow({ ...newRow, [c.id]: String(v) })}
+                          onClick={() => setModalValues({ ...modalValues, [c.id]: String(v) })}
                           className="flex-1 py-2 rounded-lg text-sm font-bold"
                           style={{
-                            backgroundColor: newRow[c.id] === String(v) ? "#F5C944" : "#F9F9F9",
-                            color: newRow[c.id] === String(v) ? "#1D2E36" : "#9CA3AF",
-                            border: `1px solid ${newRow[c.id] === String(v) ? "#F5C944" : "#E5E7EB"}`,
+                            backgroundColor: modalValues[c.id] === String(v) ? "#F5C944" : "#F9F9F9",
+                            color: modalValues[c.id] === String(v) ? "#1D2E36" : "#9CA3AF",
+                            border: `1px solid ${modalValues[c.id] === String(v) ? "#F5C944" : "#E5E7EB"}`,
                           }}
                         >
                           {v}
@@ -565,7 +686,7 @@ export function ConsultarPage() {
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setNewRowModal(false)}
+                  onClick={() => setRowModal(false)}
                   className="flex-1 py-2.5 rounded-xl text-sm font-semibold"
                   style={{ border: "1px solid #E5E7EB", color: "#374151" }}
                 >
@@ -573,13 +694,13 @@ export function ConsultarPage() {
                 </button>
                 <button
                   type="button"
-                  onClick={handleAddRow}
+                  onClick={handleSaveRow}
                   disabled={savingRow}
                   className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold disabled:opacity-40"
                   style={{ backgroundColor: "#1D2E36", color: "white" }}
                 >
                   {savingRow ? <Loader2 size={14} className="animate-spin" /> : <CheckCircle size={14} />}
-                  {savingRow ? "Salvando..." : "Adicionar registro"}
+                  {savingRow ? "Salvando..." : editingRowId !== null ? "Salvar alterações" : "Adicionar registro"}
                 </button>
               </div>
             </div>

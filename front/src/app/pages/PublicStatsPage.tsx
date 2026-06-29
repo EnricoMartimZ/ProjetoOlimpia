@@ -1,30 +1,48 @@
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router";
-import {
-  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-} from "recharts";
-import { TrendingUp, Users, Star, Building2, ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft, BarChart2, FileText, Download } from "lucide-react";
 import { OlimpiaLogo } from "../components/OlimpiaLogo";
 import { ColorStripe } from "../components/ColorStripe";
-import { useAppStore } from "../context/AppStore";
-import { toSlug } from "../../lib/constants";
-import { kpiData, monthlyData, originData, occupancyByType } from "../data/mockData";
+import { SurveyStatsView } from "../components/SurveyStatsView";
+import { getRelatoriosDisponiveis, getRelatoriosPublicados } from "../data/relatorios";
+import { getSnapshotsPublicos } from "../data/pesquisasPublicas";
 
-const KPI_ICONS = [TrendingUp, Users, Star, Building2];
-const KPI_COLORS = ["#F5C944", "#00538C", "#009688", "#2E7D32"];
+// PDF assets — indexed at build time via Vite glob import
+const PDF_URLS = import.meta.glob(
+  "../../assets/relatorios/*.pdf",
+  { query: "?url", import: "default", eager: true },
+) as Record<string, string>;
 
-const SATISFACAO_DATA = [
-  { label: "Excelente (5)", value: 48, color: "#2E7D32" },
-  { label: "Bom (4)", value: 31, color: "#009688" },
-  { label: "Regular (3)", value: 13, color: "#F5C944" },
-  { label: "Ruim (1-2)", value: 8, color: "#C8102E" },
-];
+function getPdfUrl(arquivo: string | undefined): string | undefined {
+  if (!arquivo) return undefined;
+  return PDF_URLS[`../../assets/relatorios/${arquivo}`];
+}
+
+const CARD_COLORS = ["#00538C", "#F5C944", "#C8102E", "#2E7D32"];
 
 export function PublicStatsPage() {
   const navigate = useNavigate();
-  const { researches } = useAppStore();
 
-  const activeResearches = researches.filter((r) => r.status === "ativa");
+  const snapshots = useMemo(() => getSnapshotsPublicos(), []);
+  const surveyOptions = useMemo(
+    () =>
+      snapshots.map((s) => ({
+        id: String(s.pesquisaId),
+        label: s.nome,
+        campos: s.campos,
+        dados: s.dados,
+      })),
+    [snapshots],
+  );
+
+  const [activeSurvey, setActiveSurvey] = useState(() => surveyOptions[0]?.id ?? "");
+  const current = surveyOptions.find((s) => s.id === activeSurvey) ?? surveyOptions[0];
+
+  const todosRelatorios = getRelatoriosDisponiveis();
+  const publicados = getRelatoriosPublicados();
+  const relatoriosVisiveis = todosRelatorios.filter(
+    (r) => r.publicadoPorPadrao || publicados.includes(r.id),
+  );
 
   return (
     <div
@@ -56,234 +74,134 @@ export function PublicStatsPage() {
 
       <main className="flex-1 max-w-6xl mx-auto w-full px-6 py-8 space-y-8">
 
-        {/* KPIs */}
-        <section>
-          <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36", marginBottom: 12 }}>
-            Olímpia em Números — 2026
-          </h2>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-            {kpiData.map((kpi, i) => {
-              const Icon = KPI_ICONS[i];
-              return (
-                <div
-                  key={i}
-                  className="rounded-xl p-4 shadow-sm"
-                  style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
-                >
-                  <div className="flex items-start justify-between mb-2">
-                    <div className="p-2 rounded-lg" style={{ backgroundColor: `${KPI_COLORS[i]}22` }}>
-                      <Icon size={18} style={{ color: KPI_COLORS[i] }} />
-                    </div>
-                    <span
-                      className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                      style={{
-                        backgroundColor: kpi.positive ? "#E8F5E9" : "#FFEBEE",
-                        color: kpi.positive ? "#2E7D32" : "#C62828",
-                      }}
-                    >
-                      {kpi.change}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 24, fontWeight: 800, color: "#1D2E36", lineHeight: 1.2 }}>
-                    {kpi.value}
-                  </p>
-                  <p style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{kpi.label}</p>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-
-        {/* Charts row 1 */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Monthly tourists */}
-          <div
-            className="lg:col-span-2 rounded-xl p-5 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
-          >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
-              Turistas Atendidos por Mês
-            </h3>
-            <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Jan – Mai 2026</p>
-            <ResponsiveContainer width="100%" height={220}>
-              <AreaChart data={monthlyData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="pubGradT" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#F5C944" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#F5C944" stopOpacity={0} />
-                  </linearGradient>
-                  <linearGradient id="pubGradR" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#00538C" stopOpacity={0.35} />
-                    <stop offset="95%" stopColor="#00538C" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F0EDE8" />
-                <XAxis dataKey="mes" tick={{ fontSize: 11, fill: "#6B7280" }} />
-                <YAxis tick={{ fontSize: 11, fill: "#6B7280" }} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: "none", boxShadow: "0 2px 12px rgba(0,0,0,0.1)" }} labelStyle={{ fontWeight: 600 }} />
-                <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 11 }} />
-                <Area type="monotone" dataKey="turistas" name="Turistas" stroke="#F5C944" strokeWidth={2} fill="url(#pubGradT)" />
-                <Area type="monotone" dataKey="respostas" name="Respostas coletadas" stroke="#00538C" strokeWidth={2} fill="url(#pubGradR)" />
-              </AreaChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Origin pie */}
-          <div
-            className="rounded-xl p-5 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
-          >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
-              Origem dos Visitantes
-            </h3>
-            <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 4 }}>Por região de procedência</p>
-            <ResponsiveContainer width="100%" height={160}>
-              <PieChart>
-                <Pie data={originData} cx="50%" cy="50%" innerRadius={45} outerRadius={70} dataKey="value" paddingAngle={2}>
-                  {originData.map((entry, i) => (
-                    <Cell key={i} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip formatter={(v) => [`${v}%`]} contentStyle={{ borderRadius: 8, border: "none" }} />
-              </PieChart>
-            </ResponsiveContainer>
-            <div className="space-y-1 mt-1">
-              {originData.map((item, i) => (
-                <div key={i} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-1.5">
-                    <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: item.color }} />
-                    <span style={{ color: "#374151" }}>{item.name}</span>
-                  </div>
-                  <span style={{ fontWeight: 600, color: "#1D2E36" }}>{item.value}%</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
-        {/* Charts row 2 */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Occupancy */}
-          <div
-            className="rounded-xl p-5 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
-          >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
-              Taxa de Ocupação por Tipo de Hospedagem
-            </h3>
-            <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 12 }}>Média do período (em %)</p>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={occupancyByType} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#F0EDE8" />
-                <XAxis dataKey="tipo" tick={{ fontSize: 11, fill: "#6B7280" }} />
-                <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: "#6B7280" }} />
-                <Tooltip contentStyle={{ borderRadius: 8, border: "none" }} />
-                <Bar dataKey="ocupacao" name="Ocupação (%)" radius={[4, 4, 0, 0]}>
-                  {occupancyByType.map((_, i) => (
-                    <Cell key={i} fill={i % 2 === 0 ? "#F5C944" : "#00538C"} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Satisfaction */}
-          <div
-            className="rounded-xl p-5 shadow-sm"
-            style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
-          >
-            <h3 style={{ fontWeight: 700, fontSize: 14, color: "#1D2E36", marginBottom: 4 }}>
-              Satisfação dos Visitantes
-            </h3>
-            <p style={{ fontSize: 11, color: "#6B7280", marginBottom: 16 }}>
-              Avaliação da experiência em Olímpia
-            </p>
-            <div className="space-y-3">
-              {SATISFACAO_DATA.map((item) => (
-                <div key={item.label}>
-                  <div className="flex justify-between text-xs mb-1">
-                    <span style={{ color: "#374151" }}>{item.label}</span>
-                    <span style={{ fontWeight: 600, color: "#1D2E36" }}>{item.value}%</span>
-                  </div>
-                  <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: "#F0EDE8" }}>
-                    <div
-                      className="h-full rounded-full"
-                      style={{ width: `${item.value}%`, backgroundColor: item.color, transition: "width 0.5s ease" }}
-                    />
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div
-              className="mt-4 rounded-xl p-3 flex items-center gap-3"
-              style={{ backgroundColor: "#E8F5E9", border: "1px solid #A5D6A7" }}
-            >
-              <Star size={18} fill="#2E7D32" color="#2E7D32" />
+        {/* PDF Reports section */}
+        {relatoriosVisiveis.length > 0 && (
+          <section>
+            <div className="flex items-center gap-2 mb-4">
+              <div className="p-2 rounded-lg" style={{ backgroundColor: "#F5C94430" }}>
+                <FileText size={16} style={{ color: "#F5C944" }} />
+              </div>
               <div>
-                <p style={{ fontSize: 20, fontWeight: 800, color: "#1D2E36", lineHeight: 1 }}>4.3 / 5</p>
-                <p style={{ fontSize: 11, color: "#2E7D32" }}>Média geral de avaliação</p>
+                <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>
+                  Relatórios Disponíveis
+                </h2>
+                <p style={{ fontSize: 13, color: "#6B7280", marginTop: 1 }}>
+                  Documentos publicados pela Secretaria de Turismo de Olímpia
+                </p>
               </div>
             </div>
-          </div>
-        </div>
 
-        {/* Active public surveys */}
-        {activeResearches.length > 0 && (
-          <section>
-            <div className="mb-4">
-              <h2 style={{ fontWeight: 700, fontSize: 16, color: "#1D2E36" }}>
-                Participe das Nossas Pesquisas
-              </h2>
-              <p style={{ fontSize: 13, color: "#6B7280", marginTop: 2 }}>
-                Sua opinião ajuda a melhorar o turismo em Olímpia. Responda gratuitamente.
-              </p>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {activeResearches.map((r, i) => (
-                <div
-                  key={r.id}
-                  className="rounded-xl overflow-hidden shadow-sm"
-                  style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
-                >
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
+              {relatoriosVisiveis.map((rel, i) => {
+                const color = CARD_COLORS[i % 4];
+                return (
                   <div
-                    className="h-1.5"
-                    style={{ backgroundColor: ["#F5C944", "#00538C", "#009688", "#C8102E"][i % 4] }}
-                  />
-                  <div className="p-4">
-                    <p style={{ fontSize: 14, fontWeight: 700, color: "#1D2E36", marginBottom: 4 }}>
-                      {r.nome}
-                    </p>
-                    <p style={{ fontSize: 12, color: "#6B7280", marginBottom: 12 }}>{r.descricao}</p>
-                    <div className="flex items-center justify-between">
-                      <span style={{ fontSize: 11, color: "#9CA3AF" }}>{r.campos.length} perguntas · ~2 min</span>
-                      <button
-                        onClick={() => navigate(`/pesquisa/${toSlug(r.nome)}`)}
-                        className="flex items-center gap-1 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                        style={{ backgroundColor: "#F5C944", color: "#1D2E36" }}
-                      >
-                        Responder
-                        <ExternalLink size={11} />
-                      </button>
+                    key={rel.id}
+                    className="rounded-xl overflow-hidden shadow-sm"
+                    style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
+                  >
+                    <div className="h-1.5" style={{ backgroundColor: color }} />
+                    <div className="p-5">
+                      <div className="flex items-start gap-3 mb-3">
+                        <div
+                          className="p-2 rounded-lg shrink-0"
+                          style={{ backgroundColor: `${color}25` }}
+                        >
+                          <FileText size={18} style={{ color }} />
+                        </div>
+                        <div>
+                          <p style={{ fontSize: 14, fontWeight: 700, color: "#1D2E36", lineHeight: 1.3 }}>
+                            {rel.titulo}
+                          </p>
+                          <p style={{ fontSize: 11, color: "#6B7280", marginTop: 2 }}>
+                            {rel.tipo} · {rel.periodo}
+                          </p>
+                        </div>
+                      </div>
+                      <p style={{ fontSize: 12, color: "#6B7280", marginBottom: 14 }}>{rel.descricao}</p>
+                      {(() => {
+                        const pdfUrl = getPdfUrl(rel.arquivo);
+                        return pdfUrl ? (
+                          <a
+                            href={pdfUrl}
+                            download={rel.arquivo}
+                            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold"
+                            style={{ backgroundColor: "#1D2E36", color: "white" }}
+                          >
+                            <Download size={14} />
+                            Baixar relatório
+                          </a>
+                        ) : (
+                          <button
+                            className="w-full flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-semibold opacity-60 cursor-not-allowed"
+                            style={{ backgroundColor: "#1D2E36", color: "white" }}
+                            disabled
+                          >
+                            <Download size={14} />
+                            Em elaboração
+                          </button>
+                        );
+                      })()}
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </section>
         )}
 
-        {/* Info footer */}
-        <div
-          className="rounded-xl p-5 text-center"
-          style={{ backgroundColor: "#1D2E36" }}
+        {/* Resultados por pergunta */}
+        <section
+          className="rounded-xl p-5 shadow-sm"
+          style={{ backgroundColor: "white", border: "1px solid #F0EDE8" }}
         >
-          <p style={{ fontSize: 13, color: "#F5C944", fontWeight: 700, marginBottom: 4 }}>
-            Prefeitura da Estância Turística de Olímpia
-          </p>
-          <p style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>
-            Secretaria de Turismo · Dados atualizados mensalmente
-          </p>
-        </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+            <div className="flex items-center gap-2">
+              <div className="p-2 rounded-lg" style={{ backgroundColor: "#F5C94430" }}>
+                <BarChart2 size={16} style={{ color: "#F5C944" }} />
+              </div>
+              <div>
+                <h2 style={{ fontWeight: 700, fontSize: 15, color: "#1D2E36" }}>
+                  Resultados por Pergunta
+                </h2>
+                <p style={{ fontSize: 12, color: "#6B7280", marginTop: 1 }}>
+                  Visualização Rápida
+                </p>
+              </div>
+            </div>
+
+            {surveyOptions.length > 0 && (
+              <select
+                value={activeSurvey}
+                onChange={(e) => setActiveSurvey(e.target.value)}
+                className="px-3 py-2 rounded-lg text-sm outline-none"
+                style={{
+                  border: "1px solid #E5E7EB",
+                  backgroundColor: "white",
+                  color: "#1D2E36",
+                  minWidth: 200,
+                  fontFamily: "Inter, sans-serif",
+                }}
+              >
+                {surveyOptions.map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            )}
+          </div>
+
+          {surveyOptions.length === 0 ? (
+            <p
+              className="text-center py-10"
+              style={{ fontSize: 13, color: "#9CA3AF" }}
+            >
+              Nenhuma pesquisa publicada para visualização ainda.
+            </p>
+          ) : (
+            <SurveyStatsView campos={current.campos} dados={current.dados} />
+          )}
+        </section>
+
       </main>
 
       <ColorStripe orientation="horizontal" />

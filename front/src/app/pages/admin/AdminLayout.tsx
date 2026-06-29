@@ -15,6 +15,7 @@ export function AdminLayout() {
     <AppLayout
       navItems={NAV_ITEMS}
       homePath="/admin"
+      roleBadge="Administrador"
       userName={user?.nome ?? "Administrador"}
       userEmail=""
     />
