@@ -82,7 +82,7 @@ export function AppLayout({
         {roleBadge && (
           <span
             className="mr-4 px-3 py-1 rounded-full text-xs font-semibold"
-            style={{ backgroundColor: "#1D2E36", color: "#F5C944" }}
+            style={{ backgroundColor: "#1D2E36", color: "white" }}
           >
             {roleBadge}
           </span>

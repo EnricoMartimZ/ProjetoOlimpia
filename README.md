@@ -17,7 +17,7 @@ Pré-requisitos: Python 3.9+, Node 18+, e um `.env` na **raiz do projeto** com `
 ```bash
 # Terminal 1 — backend
 cd backend
-python -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
+python3 -m venv venv && source venv/bin/activate   # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 uvicorn app.main:app --reload                       # API em http://localhost:8000
 

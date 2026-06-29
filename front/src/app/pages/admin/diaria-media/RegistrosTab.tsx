@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Trash2, Filter } from "lucide-react";
+import { Trash2, Filter, TrendingUp } from "lucide-react";
 import {
   getDiarias,
   getHospedagens,
@@ -105,6 +105,28 @@ export function RegistrosTab() {
         <p className="py-16 text-center" style={{ fontSize: 14, color: "#6B7280" }}>
           Nenhum registro encontrado.
         </p>
+      )}
+
+      {registros.length > 0 && (
+        <div
+          className="flex items-center gap-4 rounded-xl px-5 py-4 mb-4"
+          style={{ backgroundColor: "white", border: "1px solid #F0EDE8", borderLeft: "4px solid #F5C944" }}
+        >
+          <TrendingUp size={18} style={{ color: "#F5C944", flexShrink: 0 }} />
+          <div>
+            <p style={{ fontSize: 10, color: "#9CA3AF", fontWeight: 700, textTransform: "uppercase", letterSpacing: 0.5 }}>
+              {filtroHosp
+                ? `Diária média — ${hospedagens.find(h => h.cnpj === filtroHosp)?.nome_fantasia ?? filtroHosp}`
+                : "Diária média — todas as hospedagens"}
+            </p>
+            <p style={{ fontSize: 22, fontWeight: 700, color: "#1D2E36", lineHeight: 1.2 }}>
+              {brl(registros.reduce((s, r) => s + r.preco, 0) / registros.length)}
+            </p>
+            <p style={{ fontSize: 11, color: "#9CA3AF" }}>
+              {registros.length} {registros.length === 1 ? "registro" : "registros"}
+            </p>
+          </div>
+        </div>
       )}
 
       {registros.length > 0 && (
