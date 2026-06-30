@@ -29,16 +29,16 @@ backend/
 │   │   ├── hospedagem.py
 │   │   └── diaria_media.py
 │   │
-│   ├── routers/              # Endpoints da API
-│   │   ├── auth.py           # POST /auth/login
-│   │   ├── usuarios.py       # POST /usuarios
-│   │   ├── pesquisas.py      # CRUD de pesquisas + edições
-│   │   ├── edicoes.py        # campos da edição
-│   │   ├── respostas.py      # envio + consulta tabulada + remoção
+│   ├── routers/              # Endpoints da API (um módulo por recurso)
+│   │   ├── auth.py           # autenticação / login
+│   │   ├── usuarios.py       # cadastro e gestão de usuários
+│   │   ├── pesquisas.py      # pesquisas (templates de formulário)
+│   │   ├── edicoes.py        # edições de uma pesquisa
+│   │   ├── respostas.py      # envio, consulta e remoção de respostas
 │   │   ├── publico.py        # formulário público (sem auth)
 │   │   ├── pesquisador.py    # fluxo de coleta de campo (role pesquisador_campo)
-│   │   ├── hospedagem.py     # CRUD de hospedagem (Diária Média — REQ 6)
-│   │   └── diaria_media.py   # registros de diária + pendentes (REQ 6)
+│   │   ├── hospedagem.py     # cadastro de hospedagens
+│   │   └── diaria_media.py   # registros de diária média
 │   │
 │   └── services/             # Lógica de negócio
 │       ├── auth.py           # gerar/validar JWT, hash de senha
@@ -84,65 +84,30 @@ As rotas declaram o nível de acesso via dependência, sem repetir checagens de 
 | `require_servidor` | 401 sem token · 403 se role ≠ `servidor` (ex.: criar pesquisa, lançar edição, consultar respostas, Diária Média) |
 | `require_pesquisador` | 401 sem token · 403 se role ≠ `pesquisador_campo` (rotas `/pesquisador/*`) |
 
+> A referência completa das rotas (paths, payloads de entrada/saída e códigos de erro) fica em
+> [`api.md`](api.md). Este documento descreve apenas a arquitetura.
+
 ---
 
-## Endpoints
+## Fluxo de uma requisição
 
-Detalhes e exemplos de payload em `api.md`. Resumo por grupo:
-
-### Autenticação
 ```
-POST   /auth/login
-```
-
-### Usuários
-```
-POST   /usuarios                      # cadastro (público)
-```
-
-### Pesquisas e edições
-```
-GET    /pesquisas                     # lista (status + edicao_atual_id + tipo derivados)
-POST   /pesquisas                     # servidor — cria pesquisa + campos base
-GET    /pesquisas/{id}                # detalhe com campos
-PUT    /pesquisas/{id}                # servidor — substitui campos
-DELETE /pesquisas/{id}                # servidor — cascata
-GET    /pesquisas/{id}/edicoes        # lista edições
-POST   /pesquisas/{id}/edicoes        # servidor — lança edição (auto-incrementa)
-GET    /edicoes/{id}/campos           # campos fixos + extras, ordenados
+HTTP request
+   │
+   ▼
+router  ──(Depends)──►  dependencies   (get_db, controle de acesso por role)
+   │
+   ├──►  schema (Pydantic)             valida o corpo de entrada
+   │
+   ├──►  service                       lógica de negócio (quando há)
+   │        │
+   │        └──►  model (SQLAlchemy)   acesso ao banco
+   │
+   └──►  schema (Pydantic)             serializa a resposta de saída
 ```
 
-### Respostas
-```
-POST   /edicoes/{id}/respostas        # envio público (auth opcional; grava usuario_id)
-GET    /edicoes/{id}/respostas        # servidor — tabulado, paginado, com busca
-DELETE /edicoes/{id}/respostas/{rid}  # servidor — remoção manual
-```
-
-### Público (sem autenticação)
-```
-GET    /publico/edicoes/{id}          # formulário da edição (recusa edições de campo)
-```
-
-### Pesquisador de campo (role pesquisador_campo)
-```
-GET    /pesquisador/edicoes           # edições abertas de pesquisas tipo `campo`
-GET    /pesquisador/edicoes/{id}      # formulário de uma edição de campo
-POST   /pesquisador/edicoes/{id}/respostas  # coleta vinculada ao usuario_id
-```
-
-### Diária Média — REQ 6 (servidor)
-```
-GET    /hospedagens                   # lista hospedagens
-POST   /hospedagens                   # cadastra
-GET    /hospedagens/{cnpj}            # detalha (cnpj é :path)
-PUT    /hospedagens/{cnpj}            # edita
-DELETE /hospedagens/{cnpj}           # exclui (cascata nas diárias)
-GET    /diarias/pendentes             # hospedagens sem diária na data (default hoje)
-GET    /diarias                       # lista registros (filtro cnpj/data)
-POST   /diarias                       # registra diária (1 por hospedagem+data)
-DELETE /diarias/{id}                  # remove um registro
-```
+Routers finos: declaram o acesso via dependência, validam a entrada com um `schema` e delegam a
+lógica de negócio aos `services` (ou acessam o `model` diretamente em casos simples de CRUD).
 
 ---
 

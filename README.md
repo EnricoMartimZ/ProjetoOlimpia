@@ -6,13 +6,13 @@ e consultar os dados.
 
 ## Stack
 
-- **Backend:** FastAPI + SQLAlchemy + Alembic · PostgreSQL (Neon) · JWT (python-jose + bcrypt)
+- **Backend:** FastAPI + SQLAlchemy + Alembic · PostgreSQL (Neon) · JWT
 - **Frontend:** React + Vite + TypeScript · Tailwind + shadcn/ui + MUI · react-router v7
 
 ## Como rodar local
 
-Pré-requisitos: Python 3.9+, Node 18+, e um `.env` na **raiz do projeto** com `DATABASE_URL` e `SECRET_KEY`
-(peça ao tech lead). O `front/` usa `front/.env.local` com `VITE_API_URL=http://localhost:8000`.
+Pré-requisitos: Python 3.9+, Node 18+, e um `.env` na **raiz do projeto** com `DATABASE_URL` e
+`SECRET_KEY` (peça ao tech lead). O frontend usa `front/.env.local` com `VITE_API_URL=http://localhost:8000`.
 
 ```bash
 # Terminal 1 — backend
@@ -30,51 +30,21 @@ npm run dev                                         # App em http://localhost:51
 - Swagger interativo: `http://localhost:8000/docs`
 - Testes do backend: `cd backend && pip install -r requirements-dev.txt && pytest tests/`
 
-## Autenticação
+## Organização do repositório
 
-`POST /auth/login` com `{ email, senha }` retorna um JWT (`access_token`). Envie-o nas rotas protegidas
-no header `Authorization: Bearer <token>`. O token carrega `sub` (id), `nome`, `role` e `exp`.
+```
+ProjetoOlimpia/
+├── backend/        # API FastAPI (models, schemas, routers, services, migrations)
+│   └── docs/       # Documentação do backend (API, arquitetura, requisitos)
+├── front/          # Aplicação React (páginas, componentes, services/api.ts)
+├── schema/         # Schema SQL e migrações incrementais
+├── tests/          # Testes do sistema (pytest) + casos de uso
+└── architecture_modeling/   # Arquivos de modelagem (draw.io, xlsx)
+```
 
-Papéis (`role`):
-- **`servidor`** — admin da Secretaria: cria/edita pesquisas e edições, consulta respostas.
-- **`pesquisador_campo`** — coleta presencial de pesquisas do tipo `campo`. Não cria pesquisas.
-
-## Tipos de pesquisa
-
-A coluna `pesquisa.tipo` define como uma pesquisa é respondida:
-- **`publica`** — qualquer pessoa responde pelo link público `/pesquisa/{edicaoId}` (sem login).
-- **`campo`** — coletada presencialmente por um pesquisador de campo autenticado; a resposta fica
-  vinculada ao usuário que coletou. O formulário de campo **não** é exposto pela rota pública.
-
-## API — rotas atuais
-
-Base URL local: `http://localhost:8000`. Referência detalhada (request/response de cada rota) em
-[`backend/docs/api.md`](backend/docs/api.md).
-
-| Método | Rota | Descrição | Auth |
-|---|---|---|---|
-| POST | `/auth/login` | Gera token JWT | Público |
-| POST | `/usuarios` | Cria usuário | Público |
-| GET | `/pesquisas` | Lista pesquisas (status, tipo, edição atual derivados) | Público |
-| POST | `/pesquisas` | Cria pesquisa + campos base | `servidor` |
-| GET | `/pesquisas/{id}` | Detalha pesquisa com campos | Público |
-| PUT | `/pesquisas/{id}` | Edita pesquisa (substitui campos) | `servidor` |
-| DELETE | `/pesquisas/{id}` | Exclui pesquisa em cascata | `servidor` |
-| GET | `/pesquisas/{id}/edicoes` | Lista edições da pesquisa | Público |
-| POST | `/pesquisas/{id}/edicoes` | Lança edição (auto-incrementa número) | `servidor` |
-| GET | `/edicoes/{id}/campos` | Campos fixos + extras da edição | Público |
-| GET | `/publico/edicoes/{id}` | Formulário público (404 para pesquisa `campo`) | Público |
-| POST | `/edicoes/{id}/respostas` | Envia resposta pública (403 para pesquisa `campo`) | Opcional |
-| GET | `/edicoes/{id}/respostas` | Respostas tabuladas (paginação, busca, `usuario_nome`) | `servidor` |
-| DELETE | `/edicoes/{id}/respostas/{rid}` | Remove uma resposta | `servidor` |
-| GET | `/pesquisador/edicoes` | Edições abertas de pesquisas `campo` | `pesquisador_campo` |
-| GET | `/pesquisador/edicoes/{id}` | Formulário de uma edição de campo | `pesquisador_campo` |
-| POST | `/pesquisador/edicoes/{id}/respostas` | Coleta de campo (vincula `usuario_id`) | `pesquisador_campo` |
-
-## Estrutura e contexto
+## Documentação
 
 - Contexto do projeto e regras do time: [`CLAUDE.md`](CLAUDE.md)
-- Referência da API: [`backend/docs/api.md`](backend/docs/api.md)
-- Requisitos: [`backend/docs/requisitos.md`](backend/docs/requisitos.md)
+- Referência da API (rotas, request/response): [`backend/docs/api.md`](backend/docs/api.md)
 - Arquitetura do backend: [`backend/docs/arquitetura-backend.md`](backend/docs/arquitetura-backend.md)
-- Sequência de tarefas: [`TASKS.md`](TASKS.md)
+- Requisitos: [`backend/docs/requisitos.md`](backend/docs/requisitos.md)
