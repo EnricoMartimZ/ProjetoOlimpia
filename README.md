@@ -1,4 +1,4 @@
-# Projeto Olímpia (MERX)
+# Projeto Olímpia
 
 Sistema de Gestão de Pesquisas para o Turismo de Olímpia, desenvolvido para a Secretaria de Turismo.
 Permite criar pesquisas, lançar edições, coletar respostas (do público ou por pesquisadores de campo)
