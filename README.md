@@ -44,7 +44,5 @@ ProjetoOlimpia/
 
 ## Documentação
 
-- Contexto do projeto e regras do time: [`CLAUDE.md`](CLAUDE.md)
 - Referência da API (rotas, request/response): [`backend/docs/api.md`](backend/docs/api.md)
 - Arquitetura do backend: [`backend/docs/arquitetura-backend.md`](backend/docs/arquitetura-backend.md)
-- Requisitos: [`backend/docs/requisitos.md`](backend/docs/requisitos.md)
